@@ -76,13 +76,13 @@ export default function KanbanPage() {
 function getPriorityClasses(priority: string) {
   switch (priority) {
     case "High":
-      return "bg-red-500 hover:bg-red-600 text-white border-transparent";
+      return "bg-accent text-accent-foreground hover:bg-accent/80 border-transparent";
     case "Medium":
-      return "bg-orange-500 hover:bg-orange-600 text-white border-transparent";
+      return "bg-secondary text-secondary-foreground hover:bg-secondary/80 border-transparent";
     case "Low":
-      return "bg-green-500 hover:bg-green-600 text-white border-transparent";
+      return "bg-primary/20 text-primary hover:bg-primary/30 border-transparent";
     default:
-      return "bg-gray-200 text-gray-800";
+      return "bg-muted text-muted-foreground";
   }
 }
 
