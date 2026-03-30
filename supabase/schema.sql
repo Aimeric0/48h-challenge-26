@@ -122,3 +122,132 @@ create trigger profiles_updated_at
 create trigger conversations_updated_at
   before update on public.conversations
   for each row execute procedure public.update_updated_at();
+
+-- ============================================================
+-- Projects, Members, Tasks
+-- ============================================================
+
+-- Projects table
+create table public.projects (
+  id uuid default gen_random_uuid() primary key,
+  name text not null,
+  description text default '',
+  status text not null default 'planned' check (status in ('planned', 'in_progress', 'completed')),
+  deadline timestamptz,
+  owner_id uuid references auth.users on delete cascade not null,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+alter table public.projects enable row level security;
+
+-- Project members table (pivot)
+create table public.project_members (
+  project_id uuid references public.projects on delete cascade not null,
+  user_id uuid references auth.users on delete cascade not null,
+  role text not null default 'member' check (role in ('owner', 'member')),
+  joined_at timestamptz default now() not null,
+  primary key (project_id, user_id)
+);
+
+alter table public.project_members enable row level security;
+
+-- Tasks table
+create table public.tasks (
+  id uuid default gen_random_uuid() primary key,
+  project_id uuid references public.projects on delete cascade not null,
+  title text not null,
+  description text default '',
+  status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),
+  assignee_id uuid references auth.users on delete set null,
+  deadline timestamptz,
+  position integer not null default 0,
+  created_at timestamptz default now() not null,
+  updated_at timestamptz default now() not null
+);
+
+alter table public.tasks enable row level security;
+
+-- Security definer helpers (bypass RLS to avoid infinite recursion)
+create or replace function public.is_project_member(p_project_id uuid)
+returns boolean as $$
+  select exists (
+    select 1 from public.project_members
+    where project_id = p_project_id
+    and user_id = auth.uid()
+  );
+$$ language sql security definer stable;
+
+create or replace function public.is_project_owner(p_project_id uuid)
+returns boolean as $$
+  select exists (
+    select 1 from public.projects
+    where id = p_project_id
+    and owner_id = auth.uid()
+  );
+$$ language sql security definer stable;
+
+-- Projects RLS
+create policy "Members can view projects"
+  on public.projects for select
+  using (auth.uid() = owner_id or public.is_project_member(id));
+
+create policy "Authenticated users can create projects"
+  on public.projects for insert
+  with check (auth.uid() = owner_id);
+
+create policy "Owner can update project"
+  on public.projects for update
+  using (auth.uid() = owner_id);
+
+create policy "Owner can delete project"
+  on public.projects for delete
+  using (auth.uid() = owner_id);
+
+-- Project members RLS
+create policy "Members can view project members"
+  on public.project_members for select
+  using (public.is_project_member(project_id));
+
+create policy "Owner can add members"
+  on public.project_members for insert
+  with check (
+    public.is_project_owner(project_id)
+    or (auth.uid() = user_id and role = 'owner')
+  );
+
+create policy "Owner can remove members"
+  on public.project_members for delete
+  using (public.is_project_owner(project_id));
+
+-- Tasks RLS
+create policy "Members can view tasks"
+  on public.tasks for select
+  using (public.is_project_member(project_id));
+
+create policy "Members can create tasks"
+  on public.tasks for insert
+  with check (public.is_project_member(project_id));
+
+create policy "Members can update tasks"
+  on public.tasks for update
+  using (public.is_project_member(project_id));
+
+create policy "Members can delete tasks"
+  on public.tasks for delete
+  using (public.is_project_member(project_id));
+
+-- Triggers
+create trigger projects_updated_at
+  before update on public.projects
+  for each row execute procedure public.update_updated_at();
+
+create trigger tasks_updated_at
+  before update on public.tasks
+  for each row execute procedure public.update_updated_at();
+
+-- Indexes
+create index idx_project_members_user on public.project_members(user_id);
+create index idx_tasks_project on public.tasks(project_id);
+create index idx_tasks_assignee on public.tasks(assignee_id);
+create index idx_tasks_status on public.tasks(status);

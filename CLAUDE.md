@@ -74,6 +74,18 @@ Le pont vers l'assistant. Expose les fonctionnalites de l'app via le protocole M
 
 > Le jury valorise un socle solide et bien fini plutot qu'un projet ambitieux mais casse. Mieux vaut un MVP parfait que quelque chose d'inutilisable.
 
+## Charte graphique (branch feature/project/nathan)
+| Role | Hex | HSL (CSS var) |
+|------|-----|---------------|
+| Primary | `#8B5CF6` | `258 89% 66%` — violet |
+| Secondary | `#F59E0B` | `38 92% 50%` — amber |
+| Accent | `#EC4899` | `330 81% 60%` — pink |
+| Background | `#FFFDF8` | `43 100% 99%` — warm cream |
+| Card | `#FFFFFF` | `0 0% 100%` — white |
+| Text | `#1F2937` | `215 28% 17%` — dark slate |
+
+Ces valeurs sont les valeurs par defaut du theme (`:root`). Les themes de couleur utilisateur dans `lib/themes.ts` viennent surcharger `--primary` et derives.
+
 ## Conventions
 - Un composant = un fichier
 - Logique Supabase isolee dans /lib/supabase/

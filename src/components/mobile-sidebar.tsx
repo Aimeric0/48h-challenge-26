@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Settings } from "lucide-react";
+import { Home, FolderKanban, Settings } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Accueil", icon: Home },
+  { href: "/dashboard/projects", label: "Projets", icon: FolderKanban },
   { href: "/dashboard/settings", label: "Parametres", icon: Settings },
 ];
 
