@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const updateTaskSchema = z.object({
   task_id: z.string().describe("ID of the task to update"),
@@ -11,6 +11,7 @@ export const updateTaskSchema = z.object({
 });
 
 export async function updateTask(input: z.infer<typeof updateTaskSchema>) {
+  const supabase = await getSupabase();
   const { task_id, ...fields } = input;
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };

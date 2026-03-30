@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const listProjectsSchema = z.object({
   user_id: z.string().optional().describe("Filter projects by owner or member user ID"),
 });
 
 export async function listProjects(input: z.infer<typeof listProjectsSchema>) {
+  const supabase = await getSupabase();
   let query = supabase.from("projects").select("*").order("created_at", { ascending: false });
 
   if (input.user_id) {

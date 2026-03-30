@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const getUserByEmailSchema = z.object({
   email: z.string().describe("Email address of the user to look up"),
 });
 
 export async function getUserByEmail(input: z.infer<typeof getUserByEmailSchema>) {
+  const supabase = await getSupabase();
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("id, full_name, email")

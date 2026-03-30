@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const createProjectSchema = z.object({
   name: z.string().describe("Name of the project"),
@@ -9,6 +9,7 @@ export const createProjectSchema = z.object({
 });
 
 export async function createProject(input: z.infer<typeof createProjectSchema>) {
+  const supabase = await getSupabase();
   const { data: project, error } = await supabase
     .from("projects")
     .insert({

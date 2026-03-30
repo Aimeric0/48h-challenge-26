@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const listTasksSchema = z.object({
   project_id: z.string().describe("ID of the project to list tasks for"),
@@ -7,6 +7,7 @@ export const listTasksSchema = z.object({
 });
 
 export async function listTasks(input: z.infer<typeof listTasksSchema>) {
+  const supabase = await getSupabase();
   let query = supabase
     .from("tasks")
     .select("*")

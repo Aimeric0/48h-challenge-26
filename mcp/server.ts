@@ -226,8 +226,8 @@ server.prompt(
 // --- Start ---
 
 async function main() {
-  if (!process.env.SUPABASE_USER_ACCESS_TOKEN) {
-    console.error("ERROR: SUPABASE_USER_ACCESS_TOKEN is required. The MCP server must run with the authenticated user's JWT.");
+  if (!process.env.MCP_USER_EMAIL || !process.env.MCP_USER_PASSWORD) {
+    console.error("ERROR: MCP_USER_EMAIL and MCP_USER_PASSWORD are required.");
     process.exit(1);
   }
 
