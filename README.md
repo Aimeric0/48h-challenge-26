@@ -99,6 +99,41 @@ src/
 
 Le schéma SQL est dans `supabase/schema.sql`. Exécute-le dans l'éditeur SQL de ton dashboard Supabase.
 
+## Configuration MCP (Claude Desktop)
+
+Le serveur MCP démarre automatiquement via Claude Desktop — aucune commande manuelle requise.
+
+### Chemin du fichier de config
+
+| OS | Chemin |
+|---|---|
+| **Windows** | `%LOCALAPPDATA%\Packages\Claude_*\LocalCache\Roaming\Claude\claude_desktop_config.json` |
+| **macOS** | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+
+### Contenu à ajouter
+
+```json
+{
+  "mcpServers": {
+    "challenge48h": {
+      "command": "cmd",
+      "args": [
+        "/c", "npx", "tsx",
+        "/chemin/vers/48h-challenge-26/mcp/server.ts"
+      ],
+      "env": {
+        "NEXT_PUBLIC_SUPABASE_URL": "<votre_supabase_url>",
+        "SUPABASE_SERVICE_ROLE_KEY": "<votre_service_role_key>"
+      }
+    }
+  }
+}
+```
+
+> Sur macOS, remplacer `"command": "cmd"` et `"args": ["/c", "npx", "tsx", ...]` par `"command": "npx"` et `"args": ["tsx", "..."]`.
+
+Redémarrer Claude Desktop — le serveur s'initialise automatiquement et les tools sont disponibles dans le chat.
+
 ## Ressources MCP
 
 - [Documentation officielle](https://modelcontextprotocol.io)
