@@ -4,26 +4,34 @@
 
 @layer base {
   :root {
-    /* Charte graphique — light mode */
-    --background: 43 100% 99%;        /* #FFFDF8 — warm cream */
-    --foreground: 215 28% 17%;        /* #1F2937 — dark slate */
-    --card: 0 0% 100%;                /* #FFFFFF — white */
-    --card-foreground: 215 28% 17%;
+    --background: 43 100% 98%;
+    --foreground: 216 28% 17%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 216 28% 17%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 17%;
-    --primary: 258 89% 66%;           /* #8B5CF6 — violet */
+    --popover-foreground: 216 28% 17%;
+
+    --primary: 258 90% 66%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 38 92% 50%;          /* #F59E0B — amber */
-    --secondary-foreground: 215 28% 17%;
-    --muted: 215 20% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 330 81% 60%;            /* #EC4899 — pink */
+
+    --secondary: 38 92% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 330 81% 60%;
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 215 20% 88%;
-    --input: 215 20% 88%;
-    --ring: 258 89% 66%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    
+    --ring: 258 90% 66%;
     --radius: 0.5rem;
   }
 
