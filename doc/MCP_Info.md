@@ -106,15 +106,14 @@ Le serveur MCP **refuse de demarrer** si ces variables ne sont pas fournies.
   "mcpServers": {
     "challenge48h": {
       "command": "cmd",
-      "args": ["/c", "npx", "tsx", "mcp/server.ts"],
-      "env": {
-        "MCP_USER_EMAIL": "ton-email@example.com",
-        "MCP_USER_PASSWORD": "ton-mot-de-passe"
-      }
+      "args": ["/c", "node_modules\\.bin\\tsx.cmd", "mcp/server.ts"],
+      "cwd": "C:/chemin/vers/48h-challenge-26"
     }
   }
 }
 ```
+
+Les credentials (`MCP_USER_EMAIL`, `MCP_USER_PASSWORD`) sont lus depuis `.env.local` a la racine du projet — pas besoin de les dupliquer dans la config MCP.
 
 ---
 
@@ -155,6 +154,7 @@ Le serveur MCP **refuse de demarrer** si ces variables ne sont pas fournies.
 | `mcp/lib/supabase.ts` | Auto-login via `signInWithPassword()`, export `getSupabase()` async |
 | `mcp/server.ts` | Validation des credentials au demarrage |
 | `mcp/tools/*.ts` | Import `getSupabase` au lieu de `supabase`, `await getSupabase()` au debut de chaque fonction |
+| `mcp/tools/get-current-user.ts` | Nouveau tool : retourne l'identite de l'utilisateur MCP authentifie |
 | `mcp/resources/*.ts` | Idem |
 | `mcp/prompts/*.ts` | Idem |
 | `supabase/schema.sql` | Policy profiles elargie : tout utilisateur authentifie peut voir les profils |

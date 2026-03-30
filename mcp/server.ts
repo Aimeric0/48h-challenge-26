@@ -16,6 +16,7 @@ import { getOverdueTasks, getOverdueTasksSchema } from "./tools/get-overdue-task
 import { getUserTasks, getUserTasksSchema } from "./tools/get-user-tasks.js";
 import { getProjectStats, getProjectStatsSchema } from "./tools/get-project-stats.js";
 import { getUserByEmail, getUserByEmailSchema } from "./tools/get-user-by-email.js";
+import { getCurrentUser, getCurrentUserSchema } from "./tools/get-current-user.js";
 import { getProjectResource } from "./resources/project-resource.js";
 import { buildStandupPrompt } from "./prompts/standup.js";
 import { buildRetrospectivePrompt } from "./prompts/retrospective.js";
@@ -164,6 +165,16 @@ server.tool(
   getUserByEmailSchema.shape,
   async (input) => {
     const result = await getUserByEmail(input as z.infer<typeof getUserByEmailSchema>);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+);
+
+server.tool(
+  "get_current_user",
+  "Get the currently authenticated MCP user's ID, email, and name",
+  getCurrentUserSchema.shape,
+  async () => {
+    const result = await getCurrentUser();
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   }
 );
