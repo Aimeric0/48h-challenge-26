@@ -48,3 +48,11 @@ export interface ProjectWithStats extends Project {
   overdue_count: number;
   members: (ProjectMember & { profile: Profile })[];
 }
+
+export interface ProjectDetail extends Project {
+  task_count: number;
+  done_count: number;
+  overdue_count: number;
+  members: (ProjectMember & { profile: Profile })[];
+  tasks: (Task & { assignee: Profile | null })[];
+}
