@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Challenge 48h — Gestion de Projet × MCP
 
-## Getting Started
+Application web de gestion de projet pensée par et pour les étudiants en informatique, couplée à un serveur MCP (Model Context Protocol) permettant de piloter l'app en langage naturel via un assistant Mistral.
 
-First, run the development server:
+**Vision :** rendre la gestion de projet tellement fluide et intégrée dans le workflow quotidien que les étudiants la maintiennent naturellement, sans effort supplémentaire.
+
+## Stack technique
+
+| Catégorie | Technologie | Version |
+|---|---|---|
+| **Framework** | Next.js (App Router) | ^16.2.1 |
+| **Langage** | TypeScript (strict) | ^5 |
+| **UI** | React | ^18 |
+| **Styling** | Tailwind CSS | ^3.4.1 |
+| **Composants** | shadcn/ui + Radix UI | — |
+| **Icônes** | Lucide React | ^1.6.0 |
+| **Thème** | next-themes (dark/light) | ^0.4.6 |
+| **Auth & BDD** | Supabase (SSR, RLS) | ^2.100.0 |
+| **Assistant** | Mistral (client MCP) | — |
+| **MCP** | @modelcontextprotocol/sdk | — |
+| **Markdown** | react-markdown + remark-gfm | ^10.1.0 |
+| **Coloration syntaxique** | react-syntax-highlighter | ^16.1.1 |
+
+## Fonctionnalités
+
+### Socle — App Web
+- **Authentification** — Inscription / connexion (email + mot de passe), profil utilisateur
+- **Gestion de projets** — Créer un projet, inviter des membres
+- **Gestion de tâches** — CRUD complet, assignation, statuts (To Do / In Progress / Done), deadlines
+- **Board visuel** — Tableau Kanban
+- **Dashboard projet** — Progression globale, tâches en retard, activité récente
+
+### Socle — Serveur MCP
+
+| Primitive | Nom | Description |
+|---|---|---|
+| Tool | `list_projects` | Lister les projets de l'utilisateur |
+| Tool | `list_tasks` | Lister les tâches d'un projet (filtres : statut, assignation, deadline) |
+| Tool | `create_task` | Créer une tâche (titre, description, assignation) |
+| Tool | `update_task` | Modifier statut, assignation ou deadline |
+| Tool | `get_project_summary` | Résumé structuré de l'état du projet (stats + tâches critiques) |
+| Resource | `project://<id>` | Données complètes du projet |
+| Prompt | `prompt://standup` | Générer un daily standup automatique |
+
+### Fonctionnalités avancées
+- **Gamification** — XP, badges, streaks (séries de jours actifs), classement d'équipe
+- **Notifications intelligentes** — Deadline dans 24h, tâche bloquée depuis 3 jours, membre inactif (email, push, ou in-app)
+
+### Fonctionnalités bonus
+- **Intégration Git** — Lier commits/branches/PRs aux tâches, auto-done sur PR mergée (webhook GitHub/GitLab)
+- **Timeline / Gantt simplifié** — Vue temporelle avec dépendances
+- **Rétrospective intégrée** — What went well / What to improve
+- **MCP avancé** — Standup auto, détection risques de retard, suggestion répartition de tâches
+
+## Prérequis
+
+- Node.js 18+
+- Un projet [Supabase](https://supabase.com) (région Frankfurt pour le RGPD)
+- Une clé API [Mistral](https://console.mistral.ai)
+
+## Installation
+
+```bash
+npm install
+```
+
+Copie le fichier d'environnement et remplis tes clés :
+
+```bash
+cp .env.local.example .env.local
+```
+
+## Lancer en local
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+L'app tourne sur [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Structure du projet
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── (auth)/       # Pages auth (login, register)
+│   ├── (legal)/      # Pages légales (CGU, confidentialité)
+│   ├── api/          # Route handlers (endpoints backend)
+│   └── dashboard/    # Pages protégées de l'app
+├── components/       # Composants réutilisables (shadcn/ui)
+├── lib/
+│   ├── ai/           # Logique Mistral (client MCP)
+│   ├── mcp/          # Serveur MCP (tools, resources, prompts)
+│   └── supabase/     # Logique Supabase (client, server, middleware)
+└── types/            # Types TypeScript
+```
 
-## Learn More
+## Base de données
 
-To learn more about Next.js, take a look at the following resources:
+Le schéma SQL est dans `supabase/schema.sql`. Exécute-le dans l'éditeur SQL de ton dashboard Supabase.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Ressources MCP
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [Documentation officielle](https://modelcontextprotocol.io)
+- SDK TypeScript : `@modelcontextprotocol/sdk` (npm)
+- [Exemples de serveurs](https://github.com/modelcontextprotocol/servers)
 
-## Deploy on Vercel
+## Build prod
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm start
+```
