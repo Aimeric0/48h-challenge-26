@@ -58,7 +58,7 @@ const TASK_STATUS_CONFIG: Record<
     dotClass: "bg-primary",
   },
   done: {
-    label: "Termine",
+    label: "Terminé",
     icon: CheckCircle2,
     className: "text-emerald-600 dark:text-emerald-400",
     dotClass: "bg-emerald-600 dark:bg-emerald-400",
@@ -191,8 +191,8 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
               <AlertDialogHeader>
                 <AlertDialogTitle>Supprimer le projet ?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Cette action est irreversible. Toutes les taches et les
-                  membres associes seront egalement supprimes.
+                  Cette action est irréversible. Toutes les tâches et les
+                  membres associés seront également supprimés.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -222,13 +222,13 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
                   }`}
                 >
                   <Calendar className="h-3.5 w-3.5" />
-                  {isOverdue ? "En retard — " : "Echeance : "}
+                  {isOverdue ? "En retard — " : "Échéance : "}
                   {formatDate(initialProject.deadline)}
                 </span>
               )}
               {owner && (
                 <span className="flex items-center gap-1">
-                  Cree par {owner.profile?.full_name || owner.profile?.email}
+                  Créé par {owner.profile?.full_name || owner.profile?.email}
                 </span>
               )}
             </div>
@@ -244,8 +244,8 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
           iconClass="text-primary"
           sub={
             tasks.length > 0
-              ? `${doneCount}/${tasks.length} terminees`
-              : "Aucune tache"
+              ? `${doneCount}/${tasks.length} terminées`
+              : "Aucune tâche"
           }
         />
         <StatCard
@@ -283,7 +283,7 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
         <div className="lg:col-span-2 space-y-6">
           {/* Task header with create button */}
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Taches</h2>
+            <h2 className="text-lg font-semibold">Tâches</h2>
             <CreateTaskDialog
               projectId={initialProject.id}
               members={members}
@@ -308,7 +308,7 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
 
                 {statusTasks.length === 0 ? (
                   <p className="text-sm text-muted-foreground pl-5">
-                    Aucune tache
+                    Aucune tâche
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -416,7 +416,7 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
                       {member.profile?.full_name || member.profile?.email}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {member.role === "owner" ? "Proprietaire" : "Membre"}
+                      {member.role === "owner" ? "Propriétaire" : "Membre"}
                     </p>
                   </div>
                 </div>

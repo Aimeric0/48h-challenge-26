@@ -12,9 +12,9 @@ import { createClient } from "@/lib/supabase/client";
 import type { ProjectStatus } from "@/types/database";
 
 const STATUS_OPTIONS: { value: ProjectStatus; label: string }[] = [
-  { value: "planned", label: "Planifie" },
+  { value: "planned", label: "Planifié" },
   { value: "in_progress", label: "En cours" },
-  { value: "completed", label: "Termine" },
+  { value: "completed", label: "Terminé" },
 ];
 
 interface ProjectStatusSelectProps {

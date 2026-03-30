@@ -77,7 +77,7 @@ export default function SettingsPage() {
       .eq("id", userId);
 
     if (profileError) {
-      setError("Erreur lors de la mise a jour du profil.");
+      setError("Erreur lors de la mise à jour du profil.");
       setLoading(false);
       return;
     }
@@ -89,13 +89,13 @@ export default function SettingsPage() {
         email,
       });
       if (emailError) {
-        setError("Erreur lors de la mise a jour de l'email.");
+        setError("Erreur lors de la mise à jour de l'email.");
         setLoading(false);
         return;
       }
     }
 
-    setSuccess("Profil mis a jour avec succes.");
+    setSuccess("Profil mis à jour avec succès.");
     setLoading(false);
   };
 
@@ -130,7 +130,7 @@ export default function SettingsPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setError("Erreur lors de l'export des donnees.");
+      setError("Erreur lors de l'export des données.");
     }
     setExportLoading(false);
   };
@@ -138,9 +138,9 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Parametres</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Paramètres</h1>
         <p className="text-muted-foreground">
-          Gerez votre compte et vos preferences.
+          Gérez votre compte et vos préférences.
         </p>
       </div>
 
@@ -212,7 +212,7 @@ export default function SettingsPage() {
               {[
                 { id: "light", label: "Clair" },
                 { id: "dark", label: "Sombre" },
-                { id: "system", label: "Systeme" },
+                { id: "system", label: "Système" },
               ].map((mode) => (
                 <Button
                   key={mode.id}
@@ -263,9 +263,9 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Mes donnees</CardTitle>
+          <CardTitle>Mes données</CardTitle>
           <CardDescription>
-            Exportez une copie de toutes vos donnees personnelles
+            Exportez une copie de toutes vos données personnelles
             (profil, conversations, messages) au format JSON.
           </CardDescription>
         </CardHeader>
@@ -280,13 +280,13 @@ export default function SettingsPage() {
             ) : (
               <Download className="mr-2 h-4 w-4" />
             )}
-            Exporter mes donnees
+            Exporter mes données
           </Button>
           <a
             href="/privacy"
             className="text-sm text-muted-foreground underline underline-offset-4"
           >
-            Politique de confidentialite
+            Politique de confidentialité
           </a>
         </CardFooter>
       </Card>
@@ -297,8 +297,8 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle className="text-destructive">Zone de danger</CardTitle>
           <CardDescription>
-            La suppression de votre compte est irreversible. Toutes vos
-            donnees seront definitivement supprimees.
+            La suppression de votre compte est irréversible. Toutes vos
+            données seront définitivement supprimées.
           </CardDescription>
         </CardHeader>
         <CardFooter>
@@ -313,9 +313,9 @@ export default function SettingsPage() {
               <DialogHeader>
                 <DialogTitle>Confirmer la suppression</DialogTitle>
                 <DialogDescription>
-                  Cette action est irreversible. Toutes vos conversations,
-                  messages et donnees personnelles seront definitivement
-                  supprimes.
+                  Cette action est irréversible. Toutes vos conversations,
+                  messages et données personnelles seront définitivement
+                  supprimés.
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>
@@ -333,7 +333,7 @@ export default function SettingsPage() {
                   {deleteLoading && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Supprimer definitivement
+                  Supprimer définitivement
                 </Button>
               </DialogFooter>
             </DialogContent>

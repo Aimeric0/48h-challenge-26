@@ -101,14 +101,14 @@ export function CreateTaskDialog({
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="h-4 w-4 mr-1" />
-          Nouvelle tache
+          Nouvelle tâche
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Creer une tache</DialogTitle>
+          <DialogTitle>Créer une tâche</DialogTitle>
           <DialogDescription>
-            Ajoutez une nouvelle tache a ce projet.
+            Ajoutez une nouvelle tâche à ce projet.
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +117,7 @@ export function CreateTaskDialog({
             <Label htmlFor="task-title">Titre *</Label>
             <Input
               id="task-title"
-              placeholder="Nom de la tache"
+              placeholder="Nom de la tâche"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -128,7 +128,7 @@ export function CreateTaskDialog({
             <Label htmlFor="task-desc">Description</Label>
             <Textarea
               id="task-desc"
-              placeholder="Decrivez la tache..."
+              placeholder="Décrivez la tâche..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -148,19 +148,19 @@ export function CreateTaskDialog({
                 <SelectContent>
                   <SelectItem value="todo">A faire</SelectItem>
                   <SelectItem value="in_progress">En cours</SelectItem>
-                  <SelectItem value="done">Termine</SelectItem>
+                  <SelectItem value="done">Terminé</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Assignee</Label>
+              <Label>Assigné</Label>
               <Select value={assigneeId} onValueChange={setAssigneeId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Non assigne" />
+                  <SelectValue placeholder="Non assigné" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Non assigne</SelectItem>
+                  <SelectItem value="none">Non assigné</SelectItem>
                   {members.map((m) => (
                     <SelectItem key={m.user_id} value={m.user_id}>
                       {m.profile?.full_name || m.profile?.email}
@@ -193,7 +193,7 @@ export function CreateTaskDialog({
               Annuler
             </Button>
             <Button type="submit" disabled={loading || !title.trim()}>
-              {loading ? "Creation..." : "Creer la tache"}
+              {loading ? "Création..." : "Créer la tâche"}
             </Button>
           </div>
         </form>

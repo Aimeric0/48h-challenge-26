@@ -69,18 +69,18 @@ export function AddMemberDialog({
         .single();
 
       if (!profile) {
-        setError("Aucun utilisateur trouve avec cet email.");
+        setError("Aucun utilisateur trouvé avec cet email.");
         return;
       }
 
       if (existingMemberIds.includes(profile.id)) {
-        setError("Cet utilisateur est deja membre du projet.");
+        setError("Cet utilisateur est déjà membre du projet.");
         return;
       }
 
       setFoundUser(profile as Profile);
     } catch {
-      setError("Aucun utilisateur trouve avec cet email.");
+      setError("Aucun utilisateur trouvé avec cet email.");
     } finally {
       setSearching(false);
     }

@@ -34,7 +34,7 @@ export default function ForgotPasswordPage() {
     });
 
     if (error) {
-      setError("Une erreur est survenue. Veuillez reessayer.");
+      setError("Une erreur est survenue. Veuillez réessayer.");
       setLoading(false);
       return;
     }
@@ -46,9 +46,9 @@ export default function ForgotPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Mot de passe oublie</CardTitle>
+        <CardTitle>Mot de passe oublié</CardTitle>
         <CardDescription>
-          Entrez votre email pour recevoir un lien de reinitialisation.
+          Entrez votre email pour recevoir un lien de réinitialisation.
         </CardDescription>
       </CardHeader>
       {success ? (
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
           <Alert>
             <AlertDescription>
               Si un compte existe avec cet email, vous recevrez un lien de
-              reinitialisation.
+              réinitialisation.
             </AlertDescription>
           </Alert>
         </CardContent>
@@ -94,7 +94,7 @@ export default function ForgotPasswordPage() {
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary"
         >
           <ArrowLeft className="h-4 w-4" />
-          Retour a la connexion
+          Retour à la connexion
         </Link>
       </CardFooter>
     </Card>

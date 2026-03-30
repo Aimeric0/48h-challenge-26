@@ -11,7 +11,7 @@ const STATUS_CONFIG: Record<
   { label: string; className: string; icon: React.ElementType }
 > = {
   planned: {
-    label: "Planifie",
+    label: "Planifié",
     className:
       "bg-muted text-muted-foreground hover:bg-muted",
     icon: Clock,
@@ -23,7 +23,7 @@ const STATUS_CONFIG: Record<
     icon: Clock,
   },
   completed: {
-    label: "Termine",
+    label: "Terminé",
     className:
       "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/30",
     icon: CheckCircle2,
@@ -126,7 +126,7 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
         {/* Footer: task count + members */}
         <div className="flex items-center justify-between pt-1">
           <span className="text-sm text-muted-foreground">
-            {project.task_count} tache{project.task_count !== 1 ? "s" : ""}
+            {project.task_count} tâche{project.task_count !== 1 ? "s" : ""}
           </span>
 
           {project.members.length > 0 && (

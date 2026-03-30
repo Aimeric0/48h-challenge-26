@@ -128,9 +128,9 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Creer un projet</DialogTitle>
+          <DialogTitle>Créer un projet</DialogTitle>
           <DialogDescription>
-            Remplissez les informations pour creer un nouveau projet.
+            Remplissez les informations pour créer un nouveau projet.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -148,7 +148,7 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
             <Label htmlFor="project-desc">Description</Label>
             <Textarea
               id="project-desc"
-              placeholder="Decrivez votre projet en quelques mots..."
+              placeholder="Décrivez votre projet en quelques mots..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
@@ -172,7 +172,7 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
               Annuler
             </Button>
             <Button type="submit" disabled={loading || !name.trim()}>
-              {loading ? "Creation..." : "Creer"}
+              {loading ? "Création..." : "Créer"}
             </Button>
           </div>
         </form>

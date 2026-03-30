@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Accueil", icon: Home },
   { href: "/dashboard/projects", label: "Projets", icon: FolderKanban },
-  { href: "/dashboard/settings", label: "Parametres", icon: Settings },
+  { href: "/dashboard/settings", label: "Paramètres", icon: Settings },
 ];
 
 interface MobileSidebarProps {

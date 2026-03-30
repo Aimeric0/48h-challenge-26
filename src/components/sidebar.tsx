@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const navItems = [
   { href: "/dashboard", label: "Accueil", icon: Home },
   { href: "/dashboard/projects", label: "Projets", icon: FolderKanban },
-  { href: "/dashboard/settings", label: "Parametres", icon: Settings },
+  { href: "/dashboard/settings", label: "Paramètres", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -76,10 +76,10 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {!collapsed && (
         <div className="border-t px-4 py-3 flex gap-3 text-xs text-muted-foreground">
           <Link href="/privacy" className="hover:underline underline-offset-4">
-            Confidentialite
+            Confidentialité
           </Link>
           <Link href="/mentions-legales" className="hover:underline underline-offset-4">
-            Mentions legales
+            Mentions légales
           </Link>
         </div>
       )}

@@ -4,10 +4,10 @@ export default function PrivacyPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-3xl font-bold tracking-tight">
-        Politique de confidentialite
+        Politique de confidentialité
       </h1>
       <p className="text-sm text-muted-foreground">
-        Derniere mise a jour : mars 2026
+        Dernière mise à jour : mars 2026
       </p>
 
       <Card>
@@ -16,12 +16,12 @@ export default function PrivacyPage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            Le responsable du traitement des donnees personnelles est
-            l&apos;editeur de la plateforme Challenge 48h.
+            Le responsable du traitement des données personnelles est
+            l&apos;éditeur de la plateforme Challenge 48h.
           </p>
           <p>
-            Pour toute question relative a vos donnees personnelles, vous pouvez
-            nous contacter a l&apos;adresse :{" "}
+            Pour toute question relative à vos données personnelles, vous pouvez
+            nous contacter à l&apos;adresse :{" "}
             <a
               href="mailto:contact@challenge48h.fr"
               className="text-primary underline underline-offset-4"
@@ -34,21 +34,21 @@ export default function PrivacyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>2. Donnees collectees</CardTitle>
+          <CardTitle>2. Données collectées</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
-          <p>Nous collectons les donnees suivantes :</p>
+          <p>Nous collectons les données suivantes :</p>
           <ul className="list-disc space-y-1 pl-6">
             <li>
               <strong>Informations de compte :</strong> adresse email, nom
-              complet, mot de passe (stocke sous forme chiffree)
+              complet, mot de passe (stocké sous forme chiffrée)
             </li>
             <li>
-              <strong>Conversations :</strong> messages echanges avec
+              <strong>Conversations :</strong> messages échangés avec
               l&apos;assistant, titres des conversations
             </li>
             <li>
-              <strong>Donnees techniques :</strong> cookies de session
+              <strong>Données techniques :</strong> cookies de session
               d&apos;authentification
             </li>
           </ul>
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>3. Finalites du traitement</CardTitle>
+          <CardTitle>3. Finalités du traitement</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <ul className="list-disc space-y-1 pl-6">
@@ -70,14 +70,14 @@ export default function PrivacyPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>4. Destinataires des donnees</CardTitle>
+          <CardTitle>4. Destinataires des données</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           <div>
-            <p className="font-medium">Supabase (hebergement)</p>
+            <p className="font-medium">Supabase (hébergement)</p>
             <p>
-              Vos donnees de compte et conversations sont hebergees par Supabase
-              sur des serveurs situes dans l&apos;Union europeenne (region
+              Vos données de compte et conversations sont hébergées par Supabase
+              sur des serveurs situés dans l&apos;Union européenne (région
               Francfort, Allemagne).
             </p>
           </div>
@@ -85,14 +85,14 @@ export default function PrivacyPage() {
             <p className="font-medium">Mistral AI (traitement des messages)</p>
             <p>
               Lorsque vous envoyez un message dans le chat, celui-ci est
-              transmis a l&apos;API Mistral AI pour generer une reponse.
-              L&apos;historique de la conversation en cours est egalement
-              transmis pour assurer la coherence des reponses.
+              transmis à l&apos;API Mistral AI pour générer une réponse.
+              L&apos;historique de la conversation en cours est également
+              transmis pour assurer la cohérence des réponses.
             </p>
             <p className="mt-2 rounded-md bg-muted p-3">
               <strong>Important :</strong> Dans le cadre du plan gratuit de
-              Mistral AI, les donnees d&apos;entree et de sortie peuvent etre
-              utilisees par Mistral pour ameliorer ses modeles. Ne partagez pas
+              Mistral AI, les données d&apos;entrée et de sortie peuvent être
+              utilisées par Mistral pour améliorer ses modèles. Ne partagez pas
               d&apos;informations sensibles ou personnelles dans le chat.
             </p>
           </div>
@@ -106,14 +106,14 @@ export default function PrivacyPage() {
         <CardContent className="space-y-2 text-sm">
           <p>
             Les sous-traitants suivants interviennent dans le traitement de vos
-            donnees :
+            données :
           </p>
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b">
                   <th className="py-2 pr-4 text-left font-medium">Sous-traitant</th>
-                  <th className="py-2 pr-4 text-left font-medium">Role</th>
+                  <th className="py-2 pr-4 text-left font-medium">Rôle</th>
                   <th className="py-2 pr-4 text-left font-medium">Localisation</th>
                   <th className="py-2 text-left font-medium">DPA</th>
                 </tr>
@@ -121,7 +121,7 @@ export default function PrivacyPage() {
               <tbody>
                 <tr className="border-b">
                   <td className="py-2 pr-4">Supabase Inc.</td>
-                  <td className="py-2 pr-4">Hebergement et authentification</td>
+                  <td className="py-2 pr-4">Hébergement et authentification</td>
                   <td className="py-2 pr-4">UE (Francfort)</td>
                   <td className="py-2">Inclus dans les CGU Supabase</td>
                 </tr>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
                 </tr>
                 <tr className="border-b">
                   <td className="py-2 pr-4">Vercel Inc.</td>
-                  <td className="py-2 pr-4">Hebergement de l&apos;application</td>
+                  <td className="py-2 pr-4">Hébergement de l&apos;application</td>
                   <td className="py-2 pr-4">International (CDN)</td>
                   <td className="py-2">Inclus dans les CGU Vercel</td>
                 </tr>
@@ -141,22 +141,22 @@ export default function PrivacyPage() {
             </table>
           </div>
           <p className="text-muted-foreground">
-            Des accords de traitement des donnees (DPA) sont en cours de
+            Des accords de traitement des données (DPA) sont en cours de
             formalisation avec l&apos;ensemble de nos sous-traitants
-            conformement a l&apos;article 28 du RGPD.
+            conformément à l&apos;article 28 du RGPD.
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>6. Duree de conservation</CardTitle>
+          <CardTitle>6. Durée de conservation</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            Vos donnees sont conservees tant que votre compte est actif. En cas
-            de suppression de votre compte, toutes vos donnees personnelles,
-            conversations et messages sont definitivement supprimes de nos
+            Vos données sont conservées tant que votre compte est actif. En cas
+            de suppression de votre compte, toutes vos données personnelles,
+            conversations et messages sont définitivement supprimés de nos
             serveurs.
           </p>
         </CardContent>
@@ -168,29 +168,29 @@ export default function PrivacyPage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            Conformement au Reglement General sur la Protection des Donnees
+            Conformément au Règlement Général sur la Protection des Données
             (RGPD), vous disposez des droits suivants :
           </p>
           <ul className="list-disc space-y-1 pl-6">
             <li>
-              <strong>Droit d&apos;acces :</strong> obtenir une copie de vos
-              donnees personnelles
+              <strong>Droit d&apos;accès :</strong> obtenir une copie de vos
+              données personnelles
             </li>
             <li>
               <strong>Droit de rectification :</strong> modifier vos
-              informations depuis les parametres de votre compte
+              informations depuis les paramètres de votre compte
             </li>
             <li>
               <strong>Droit a l&apos;effacement :</strong> supprimer votre
-              compte et toutes les donnees associees depuis les parametres
+              compte et toutes les données associées depuis les paramètres
             </li>
             <li>
-              <strong>Droit a la portabilite :</strong> exporter vos donnees au
-              format JSON depuis les parametres de votre compte
+              <strong>Droit à la portabilité :</strong> exporter vos données au
+              format JSON depuis les paramètres de votre compte
             </li>
             <li>
               <strong>Droit d&apos;opposition :</strong> vous opposer au
-              traitement de vos donnees en supprimant votre compte
+              traitement de vos données en supprimant votre compte
             </li>
           </ul>
         </CardContent>
@@ -202,22 +202,22 @@ export default function PrivacyPage() {
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            Ce site utilise uniquement des cookies strictement necessaires au
+            Ce site utilise uniquement des cookies strictement nécessaires au
             fonctionnement du service d&apos;authentification. Aucun cookie de
-            suivi, publicitaire ou analytique n&apos;est utilise.
+            suivi, publicitaire ou analytique n&apos;est utilisé.
           </p>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>9. Securite</CardTitle>
+          <CardTitle>9. Sécurité</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2 text-sm">
           <p>
-            Nous mettons en oeuvre des mesures techniques appropriees pour
-            proteger vos donnees : chiffrement des mots de passe, connexions
-            HTTPS, controle d&apos;acces par utilisateur sur la base de donnees
+            Nous mettons en oeuvre des mesures techniques appropriées pour
+            protéger vos données : chiffrement des mots de passe, connexions
+            HTTPS, contrôle d&apos;accès par utilisateur sur la base de données
             (Row Level Security).
           </p>
         </CardContent>
