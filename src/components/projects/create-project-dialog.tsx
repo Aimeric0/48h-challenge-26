@@ -79,7 +79,7 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
       // Fetch the user's profile for the member list
       const { data: profile } = await supabase
         .from("profiles")
-        .select("id, email, full_name, avatar_url, created_at, updated_at")
+        .select("id, email, full_name, avatar_url, xp, level, created_at, updated_at")
         .eq("id", user.id)
         .single();
 

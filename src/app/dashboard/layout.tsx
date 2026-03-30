@@ -14,6 +14,8 @@ export default function DashboardLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userName, setUserName] = useState<string>();
+  const [xp, setXp] = useState(0);
+  const [level, setLevel] = useState(1);
 
   useEffect(() => {
     const supabase = createClient();
@@ -23,11 +25,13 @@ export default function DashboardLayout({
       if (user) {
         const { data: profile } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, xp, level")
           .eq("id", user.id)
           .single();
 
         setUserName(profile?.full_name || user.email || "");
+        setXp(profile?.xp ?? 0);
+        setLevel(profile?.level ?? 1);
       }
     }
 
@@ -52,6 +56,8 @@ export default function DashboardLayout({
         <Header
           onMenuClick={() => setMobileOpen(true)}
           userName={userName}
+          xp={xp}
+          level={level}
         />
         <main className="flex-1 overflow-auto bg-background p-6">
           {children}

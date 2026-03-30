@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Menu, LogOut, User, Settings } from "lucide-react";
+import { XpBar } from "@/components/xp-bar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,9 +18,11 @@ import { createClient } from "@/lib/supabase/client";
 interface HeaderProps {
   onMenuClick: () => void;
   userName?: string;
+  xp?: number;
+  level?: number;
 }
 
-export function Header({ onMenuClick, userName }: HeaderProps) {
+export function Header({ onMenuClick, userName, xp = 0, level = 1 }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -50,6 +53,8 @@ export function Header({ onMenuClick, userName }: HeaderProps) {
       </Button>
 
       <div className="flex-1" />
+
+      <XpBar xp={xp} level={level} compact />
 
       <ThemeToggle />
 
