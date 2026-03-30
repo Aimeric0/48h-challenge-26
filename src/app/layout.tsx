@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ColorThemeProvider } from "@/components/color-theme-provider";
 import { CookieConsent } from "@/components/cookie-consent";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -36,6 +37,7 @@ export default function RootLayout({
           <ColorThemeProvider>
             {children}
             <CookieConsent />
+            <Toaster richColors position="bottom-right" />
           </ColorThemeProvider>
         </ThemeProvider>
       </body>

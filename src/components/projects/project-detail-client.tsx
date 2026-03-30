@@ -32,6 +32,7 @@ import { AddMemberDialog } from "@/components/projects/add-member-dialog";
 import { CreateTaskDialog } from "@/components/projects/create-task-dialog";
 import { ProjectStatusSelect } from "@/components/projects/project-status-select";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import type {
   ProjectDetail,
   TaskStatus,
@@ -140,6 +141,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
       .eq("id", taskId);
     if (error) {
       console.error("[delete-task] Failed:", error);
+      toast.error("Erreur lors de la suppression de la tâche");
       return;
     }
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
@@ -276,6 +278,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
         <CreateTaskDialog
           projectId={initialProject.id}
           members={members}
+          existingTasks={tasks}
           onTaskCreated={handleTaskCreated}
         />
       </div>

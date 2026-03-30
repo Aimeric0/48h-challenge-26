@@ -22,17 +22,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import type { Task, TaskStatus, Profile, ProjectMember } from "@/types/database";
 
 interface CreateTaskDialogProps {
   projectId: string;
   members: (ProjectMember & { profile: Profile })[];
+  existingTasks: Task[];
   onTaskCreated: (task: Task & { assignee: Profile | null }) => void;
 }
 
 export function CreateTaskDialog({
   projectId,
   members,
+  existingTasks,
   onTaskCreated,
 }: CreateTaskDialogProps) {
   const [open, setOpen] = useState(false);
@@ -59,6 +62,11 @@ export function CreateTaskDialog({
     try {
       const supabase = createClient();
 
+      // Compute next position for the target status column
+      const maxPosition = existingTasks
+        .filter((t) => t.status === status)
+        .reduce((max, t) => Math.max(max, t.position), -1);
+
       const { data: task, error } = await supabase
         .from("tasks")
         .insert({
@@ -68,7 +76,7 @@ export function CreateTaskDialog({
           status,
           assignee_id: assigneeId === "none" ? null : assigneeId,
           deadline: deadline || null,
-          position: 0,
+          position: maxPosition + 1,
         })
         .select("*")
         .single();
@@ -83,8 +91,10 @@ export function CreateTaskDialog({
       onTaskCreated({ ...task, assignee });
       setOpen(false);
       reset();
+      toast.success("Tâche créée avec succès");
     } catch (err) {
       console.error("[create-task] Failed:", err);
+      toast.error("Erreur lors de la création de la tâche");
     } finally {
       setLoading(false);
     }

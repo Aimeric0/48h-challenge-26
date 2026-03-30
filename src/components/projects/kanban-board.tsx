@@ -35,6 +35,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 import type { Task, TaskStatus, Profile } from "@/types/database";
 
 type TaskWithAssignee = Task & { assignee: Profile | null };
@@ -368,27 +369,34 @@ export function KanbanBoard({
     }
   }
 
-  async function persistStatus(taskId: string, status: TaskStatus) {
+  async function persistStatus(taskId: string, newStatus: TaskStatus) {
     const supabase = createClient();
     const { error } = await supabase
       .from("tasks")
-      .update({ status })
+      .update({ status: newStatus })
       .eq("id", taskId);
-    if (error) console.error("[kanban] Status update failed:", error);
+    if (error) {
+      console.error("[kanban] Status update failed:", error);
+      toast.error("Erreur lors du déplacement de la tâche");
+    }
   }
 
   async function persistPositions(
     tasksToUpdate: { id: string; position: number }[]
   ) {
+    if (tasksToUpdate.length === 0) return;
     const supabase = createClient();
-    await Promise.all(
-      tasksToUpdate.map((t) =>
-        supabase
-          .from("tasks")
-          .update({ position: t.position })
-          .eq("id", t.id)
-      )
-    );
+    const payload = tasksToUpdate.map((t) => ({
+      task_id: t.id,
+      new_position: t.position,
+    }));
+    const { error } = await supabase.rpc("batch_update_task_positions", {
+      updates: payload,
+    });
+    if (error) {
+      console.error("[kanban] Position update failed:", error);
+      toast.error("Erreur lors de la réorganisation des tâches");
+    }
   }
 
   return (
