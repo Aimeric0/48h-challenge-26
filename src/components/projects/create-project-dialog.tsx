@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Plus } from "lucide-react";
+import type { ProjectWithStats } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -17,8 +17,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@/lib/supabase/client";
 
-export function CreateProjectDialog() {
-  const router = useRouter();
+interface CreateProjectDialogProps {
+  onCreated?: (project: ProjectWithStats) => void;
+}
+
+export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
@@ -73,11 +76,41 @@ export function CreateProjectDialog() {
       }
       console.log("[create-project] Owner member added");
 
+      // Fetch the user's profile for the member list
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("id, email, full_name, avatar_url, created_at, updated_at")
+        .eq("id", user.id)
+        .single();
+
+      const newProject: ProjectWithStats = {
+        id: project.id,
+        name: name.trim(),
+        description: description.trim(),
+        status: "planned",
+        deadline: deadline || null,
+        owner_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        task_count: 0,
+        done_count: 0,
+        overdue_count: 0,
+        members: [
+          {
+            project_id: project.id,
+            user_id: user.id,
+            role: "owner",
+            joined_at: new Date().toISOString(),
+            profile: profile!,
+          },
+        ],
+      };
+
       setOpen(false);
       setName("");
       setDescription("");
       setDeadline("");
-      router.refresh();
+      onCreated?.(newProject);
     } catch (err) {
       console.error("[create-project] Failed:", err);
     } finally {

@@ -25,11 +25,16 @@ interface ProjectsPageClientProps {
   projects: ProjectWithStats[];
 }
 
-export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
+export function ProjectsPageClient({ projects: initialProjects }: ProjectsPageClientProps) {
   const router = useRouter();
+  const [projects, setProjects] = useState(initialProjects);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+
+  function handleProjectCreated(project: ProjectWithStats) {
+    setProjects((prev) => [project, ...prev]);
+  }
 
   const filtered = projects.filter((p) => {
     const matchesSearch =
@@ -53,7 +58,7 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
             {projects.length} projet{projects.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <CreateProjectDialog />
+        <CreateProjectDialog onCreated={handleProjectCreated} />
       </div>
 
       {/* Toolbar: search + filters + view toggle */}
@@ -112,7 +117,7 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
 
       {/* Content */}
       {filtered.length === 0 ? (
-        <EmptyState hasProjects={projects.length > 0} />
+        <EmptyState hasProjects={projects.length > 0} onCreated={handleProjectCreated} />
       ) : viewMode === "grid" ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((project) => (
@@ -138,7 +143,7 @@ export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
   );
 }
 
-function EmptyState({ hasProjects }: { hasProjects: boolean }) {
+function EmptyState({ hasProjects, onCreated }: { hasProjects: boolean; onCreated: (p: ProjectWithStats) => void }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
       <div className="rounded-full bg-muted p-4 mb-4">
@@ -154,7 +159,7 @@ function EmptyState({ hasProjects }: { hasProjects: boolean }) {
       </p>
       {!hasProjects && (
         <div className="mt-4">
-          <CreateProjectDialog />
+          <CreateProjectDialog onCreated={onCreated} />
         </div>
       )}
     </div>
