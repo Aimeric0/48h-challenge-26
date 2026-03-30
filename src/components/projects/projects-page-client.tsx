@@ -17,8 +17,8 @@ type ViewMode = "grid" | "list";
 const STATUS_FILTERS: { value: FilterStatus; label: string }[] = [
   { value: "all", label: "Tous" },
   { value: "in_progress", label: "En cours" },
-  { value: "planned", label: "Planifie" },
-  { value: "completed", label: "Termine" },
+  { value: "planned", label: "Planifié" },
+  { value: "completed", label: "Terminé" },
 ];
 
 interface ProjectsPageClientProps {
@@ -150,12 +150,12 @@ function EmptyState({ hasProjects, onCreated }: { hasProjects: boolean; onCreate
         <FolderOpen className="h-8 w-8 text-muted-foreground" />
       </div>
       <h3 className="text-lg font-semibold">
-        {hasProjects ? "Aucun resultat" : "Aucun projet"}
+        {hasProjects ? "Aucun résultat" : "Aucun projet"}
       </h3>
       <p className="text-sm text-muted-foreground mt-1 max-w-sm">
         {hasProjects
           ? "Essayez de modifier vos filtres ou votre recherche."
-          : "Creez votre premier projet pour commencer a organiser vos taches."}
+          : "Créez votre premier projet pour commencer à organiser vos tâches."}
       </p>
       {!hasProjects && (
         <div className="mt-4">
@@ -179,9 +179,9 @@ function ProjectListRow({
       : 0;
 
   const statusLabel: Record<ProjectStatus, string> = {
-    planned: "Planifie",
+    planned: "Planifié",
     in_progress: "En cours",
-    completed: "Termine",
+    completed: "Terminé",
   };
 
   const statusClass: Record<ProjectStatus, string> = {
@@ -227,7 +227,7 @@ function ProjectListRow({
 
         {/* Tasks */}
         <span className="text-sm text-muted-foreground w-20 text-right">
-          {project.task_count} tache{project.task_count !== 1 ? "s" : ""}
+          {project.task_count} tâche{project.task_count !== 1 ? "s" : ""}
         </span>
 
         {/* Members */}

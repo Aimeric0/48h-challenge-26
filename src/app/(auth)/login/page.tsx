@@ -51,7 +51,7 @@ export default function LoginPage() {
       <CardHeader>
         <CardTitle>Connexion</CardTitle>
         <CardDescription>
-          Connectez-vous a votre compte pour continuer.
+          Connectez-vous à votre compte pour continuer.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -94,7 +94,7 @@ export default function LoginPage() {
               href="/forgot-password"
               className="hover:text-primary underline-offset-4 hover:underline"
             >
-              Mot de passe oublie ?
+              Mot de passe oublié ?
             </Link>
             <span>
               Pas encore de compte ?{" "}

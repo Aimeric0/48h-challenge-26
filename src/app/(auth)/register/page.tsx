@@ -34,7 +34,7 @@ export default function RegisterPage() {
     setLoading(true);
 
     if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caracteres.");
+      setError("Le mot de passe doit contenir au moins 6 caractères.");
       setLoading(false);
       return;
     }
@@ -48,7 +48,7 @@ export default function RegisterPage() {
     });
 
     if (error) {
-      setError("Une erreur est survenue. Veuillez reessayer.");
+      setError("Une erreur est survenue. Veuillez réessayer.");
       setLoading(false);
       return;
     }
@@ -62,7 +62,7 @@ export default function RegisterPage() {
       <CardHeader>
         <CardTitle>Inscription</CardTitle>
         <CardDescription>
-          Creez votre compte pour commencer.
+          Créez votre compte pour commencer.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
@@ -106,7 +106,7 @@ export default function RegisterPage() {
               minLength={6}
             />
             <p className="text-xs text-muted-foreground">
-              Minimum 6 caracteres
+              Minimum 6 caractères
             </p>
           </div>
           <div className="flex items-start space-x-2">
@@ -124,7 +124,7 @@ export default function RegisterPage() {
                 className="text-primary underline underline-offset-4"
                 target="_blank"
               >
-                politique de confidentialite
+                politique de confidentialité
               </Link>
             </Label>
           </div>
@@ -132,10 +132,10 @@ export default function RegisterPage() {
         <CardFooter className="flex flex-col space-y-4">
           <Button type="submit" className="w-full" disabled={loading || !consent}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Creer mon compte
+            Créer mon compte
           </Button>
           <p className="text-sm text-muted-foreground">
-            Deja un compte ?{" "}
+            Déjà un compte ?{" "}
             <Link
               href="/login"
               className="text-primary underline-offset-4 hover:underline"
