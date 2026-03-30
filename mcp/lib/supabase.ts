@@ -1,5 +1,7 @@
 import { config } from "dotenv";
-config({ path: ".env.local" });
+import { resolve } from "path";
+
+config({ path: resolve(__dirname, "..", "..", ".env.local"), quiet: true });
 
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
