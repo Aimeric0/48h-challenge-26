@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "challenge48h": {
+      "command": "cmd",
+      "args": ["/c", "npx", "tsx", "mcp/server.ts"],
+      "cwd": "C:/Users/natha/Documents/__Challenge48h/48h-challenge-26"
+    }
+  }
+}
