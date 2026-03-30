@@ -30,7 +30,9 @@ Application web de gestion de projet pensée par et pour les étudiants en infor
 - **Board visuel** — Tableau Kanban
 - **Dashboard projet** — Progression globale, tâches en retard, activité récente
 
-### Socle — Serveur MCP
+### Serveur MCP
+
+#### Tools — Socle
 
 | Primitive | Nom | Description |
 |---|---|---|
@@ -39,8 +41,30 @@ Application web de gestion de projet pensée par et pour les étudiants en infor
 | Tool | `create_task` | Créer une tâche (titre, description, assignation) |
 | Tool | `update_task` | Modifier statut, assignation ou deadline |
 | Tool | `get_project_summary` | Résumé structuré de l'état du projet (stats + tâches critiques) |
-| Resource | `project://<id>` | Données complètes du projet |
-| Prompt | `prompt://standup` | Générer un daily standup automatique |
+
+#### Tools — Avancés
+
+| Primitive | Nom | Description |
+|---|---|---|
+| Tool | `create_project` | Créer un projet (nom, description, deadline) et ajouter le propriétaire |
+| Tool | `delete_task` | Supprimer une tâche par ID |
+| Tool | `assign_task` | Assigner ou réassigner une tâche à un membre |
+| Tool | `list_members` | Lister les membres d'un projet avec profils et rôles |
+| Tool | `invite_member` | Inviter un utilisateur par email dans un projet |
+| Tool | `get_overdue_tasks` | Récupérer les tâches en retard (tous projets ou par projet) |
+| Tool | `get_user_tasks` | Lister les tâches assignées à un utilisateur |
+| Tool | `get_project_stats` | Statistiques : taux de complétion, vélocité hebdomadaire |
+
+#### Resources & Prompts
+
+| Primitive | Nom | Description |
+|---|---|---|
+| Resource | `project://<id>` | Données complètes du projet (snapshot JSON) |
+| Prompt | `standup` | Template de daily standup avec contexte projet |
+| Prompt | `retrospective` | Template de rétrospective sprint |
+| Prompt | `task_breakdown` | Décomposition d'un objectif en sous-tâches |
+
+> Documentation complète des outils MCP : [`doc/MCP_TOOLS.md`](doc/MCP_TOOLS.md)
 
 ### Fonctionnalités avancées
 - **Gamification** — XP, badges, streaks (séries de jours actifs), classement d'équipe
@@ -81,18 +105,26 @@ L'app tourne sur [http://localhost:3000](http://localhost:3000).
 ## Structure du projet
 
 ```
+mcp/                    # Serveur MCP standalone (stdio)
+├── tools/              # 13 tools (CRUD projets, tâches, membres, stats)
+├── resources/          # Resource project://<id>
+├── prompts/            # Prompts (standup, retrospective, task_breakdown)
+├── lib/                # Client Supabase pour le serveur MCP
+└── server.ts           # Point d'entrée du serveur
+doc/
+└── MCP_TOOLS.md        # Documentation détaillée des outils MCP
 src/
 ├── app/
-│   ├── (auth)/       # Pages auth (login, register)
-│   ├── (legal)/      # Pages légales (CGU, confidentialité)
-│   ├── api/          # Route handlers (endpoints backend)
-│   └── dashboard/    # Pages protégées de l'app
-├── components/       # Composants réutilisables (shadcn/ui)
+│   ├── (auth)/         # Pages auth (login, register)
+│   ├── (legal)/        # Pages légales (CGU, confidentialité)
+│   ├── api/            # Route handlers (endpoints backend)
+│   └── dashboard/      # Pages protégées de l'app
+├── components/         # Composants réutilisables (shadcn/ui)
 ├── lib/
-│   ├── ai/           # Logique Mistral (client MCP)
-│   ├── mcp/          # Serveur MCP (tools, resources, prompts)
-│   └── supabase/     # Logique Supabase (client, server, middleware)
-└── types/            # Types TypeScript
+│   ├── ai/             # Logique Mistral (client MCP)
+│   ├── mcp/            # Logique MCP côté app
+│   └── supabase/       # Logique Supabase (client, server, middleware)
+└── types/              # Types TypeScript
 ```
 
 ## Base de données
