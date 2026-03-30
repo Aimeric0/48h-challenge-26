@@ -1,14 +1,16 @@
+import { config } from "dotenv";
+config({ path: ".env.local" });
+
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+const email = process.env.MCP_USER_EMAIL;
+const password = process.env.MCP_USER_PASSWORD;
 
 if (!url || !anonKey) {
   throw new Error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY");
 }
-
-const email = process.env.MCP_USER_EMAIL;
-const password = process.env.MCP_USER_PASSWORD;
 
 if (!email || !password) {
   throw new Error(

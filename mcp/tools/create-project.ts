@@ -16,6 +16,7 @@ export async function createProject(input: z.infer<typeof createProjectSchema>) 
       name: input.name,
       description: input.description ?? null,
       deadline: input.deadline ?? null,
+      owner_id: input.owner_id,
     })
     .select()
     .single();
