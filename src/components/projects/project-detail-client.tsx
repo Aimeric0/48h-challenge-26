@@ -11,13 +11,27 @@ import {
   Users,
   ListTodo,
   CircleDot,
+  Trash2,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { AddMemberDialog } from "@/components/projects/add-member-dialog";
 import { CreateTaskDialog } from "@/components/projects/create-task-dialog";
 import { ProjectStatusSelect } from "@/components/projects/project-status-select";
+import { createClient } from "@/lib/supabase/client";
 import type {
   ProjectDetail,
   TaskStatus,
@@ -108,6 +122,37 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
     setTasks((prev) => [...prev, task]);
   }
 
+  const [deletingProject, setDeletingProject] = useState(false);
+
+  async function handleDeleteProject() {
+    setDeletingProject(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("projects")
+        .delete()
+        .eq("id", initialProject.id);
+      if (error) throw error;
+      router.push("/dashboard/projects");
+    } catch (err) {
+      console.error("[delete-project] Failed:", err);
+      setDeletingProject(false);
+    }
+  }
+
+  async function handleDeleteTask(taskId: string) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", taskId);
+    if (error) {
+      console.error("[delete-task] Failed:", error);
+      return;
+    }
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
+  }
+
   return (
     <div className="space-y-6">
       {/* Back + Header */}
@@ -134,6 +179,36 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
                 onStatusChanged={setStatus}
               />
             </div>
+          </div>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="sm">
+                <Trash2 className="h-4 w-4 mr-1" />
+                Supprimer
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer le projet ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irreversible. Toutes les taches et les
+                  membres associes seront egalement supprimes.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteProject}
+                  disabled={deletingProject}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {deletingProject ? "Suppression..." : "Supprimer"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+        <div className="space-y-1">
             {initialProject.description && (
               <p className="text-muted-foreground max-w-2xl">
                 {initialProject.description}
@@ -158,7 +233,6 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
               )}
             </div>
           </div>
-        </div>
       </div>
 
       {/* Stats cards */}
@@ -286,6 +360,14 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
                                   </AvatarFallback>
                                 </Avatar>
                               )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                                onClick={() => handleDeleteTask(task.id)}
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </Button>
                             </div>
                           </CardContent>
                         </Card>
