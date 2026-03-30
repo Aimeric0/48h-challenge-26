@@ -196,7 +196,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
               />
             </div>
           </div>
-          <AlertDialog>
+          {isOwner && <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="sm">
                 <Trash2 className="h-4 w-4 mr-1" />
@@ -222,7 +222,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
-          </AlertDialog>
+          </AlertDialog>}
         </div>
         <div className="space-y-1">
             {initialProject.description && (
