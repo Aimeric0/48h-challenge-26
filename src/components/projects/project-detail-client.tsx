@@ -31,6 +31,7 @@ import {
 import { AddMemberDialog } from "@/components/projects/add-member-dialog";
 import { CreateTaskDialog } from "@/components/projects/create-task-dialog";
 import { ProjectStatusSelect } from "@/components/projects/project-status-select";
+import { TaskStatusSelect } from "@/components/projects/task-status-select";
 import { createClient } from "@/lib/supabase/client";
 import type {
   ProjectDetail,
@@ -136,6 +137,12 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
 
   function handleTaskCreated(task: Task & { assignee: Profile | null }) {
     setTasks((prev) => [...prev, task]);
+  }
+
+  function handleTaskStatusChanged(taskId: string, status: TaskStatus) {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, status } : t))
+    );
   }
 
   const [deletingProject, setDeletingProject] = useState(false);
@@ -337,8 +344,10 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
                       return (
                         <Card key={task.id} className="shadow-none">
                           <CardContent className="flex items-center gap-3 py-3 px-4">
-                            <config.icon
-                              className={`h-4 w-4 shrink-0 ${config.className}`}
+                            <TaskStatusSelect
+                              taskId={task.id}
+                              currentStatus={task.status}
+                              onStatusChanged={handleTaskStatusChanged}
                             />
                             <div className="flex-1 min-w-0">
                               <p className="font-medium text-sm truncate">
@@ -405,11 +414,13 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
                   <Users className="h-4 w-4" />
                   Membres ({members.length})
                 </CardTitle>
-                <AddMemberDialog
-                  projectId={initialProject.id}
-                  existingMemberIds={members.map((m) => m.user_id)}
-                  onMemberAdded={handleMemberAdded}
-                />
+                {isOwner && (
+                  <AddMemberDialog
+                    projectId={initialProject.id}
+                    existingMemberIds={members.map((m) => m.user_id)}
+                    onMemberAdded={handleMemberAdded}
+                  />
+                )}
               </div>
             </CardHeader>
             <CardContent className="space-y-3">
