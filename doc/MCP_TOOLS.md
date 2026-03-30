@@ -3,6 +3,7 @@
 > Serveur MCP `challenge48h-mcp` v1.0.0
 > Transport : stdio
 > SDK : `@modelcontextprotocol/sdk`
+> Authentification : JWT utilisateur via `SUPABASE_USER_ACCESS_TOKEN` (voir [MCP_Info.md](./MCP_Info.md))
 
 ---
 
@@ -13,6 +14,7 @@
   - [Gestion de tâches](#gestion-de-tâches)
   - [Membres & collaboration](#membres--collaboration)
   - [Analytics & reporting](#analytics--reporting)
+  - [Utilisateurs](#utilisateurs)
 - [Resources](#resources)
 - [Prompts](#prompts)
 
@@ -220,6 +222,23 @@ Statistiques détaillées d'un projet : taux de complétion et vélocité hebdom
   ]
 }
 ```
+
+---
+
+### Utilisateurs
+
+#### `get_user_by_email`
+
+Recherche un utilisateur par son adresse email et retourne son profil.
+
+| Paramètre | Type | Requis | Description |
+|-----------|------|--------|-------------|
+| `email` | `string` | oui | Adresse email de l'utilisateur |
+
+**Retour :** `{ id, full_name, email }`.
+
+**Erreurs possibles :**
+- Utilisateur non trouvé avec cet email
 
 ---
 

@@ -15,6 +15,7 @@ import { inviteMember, inviteMemberSchema } from "./tools/invite-member.js";
 import { getOverdueTasks, getOverdueTasksSchema } from "./tools/get-overdue-tasks.js";
 import { getUserTasks, getUserTasksSchema } from "./tools/get-user-tasks.js";
 import { getProjectStats, getProjectStatsSchema } from "./tools/get-project-stats.js";
+import { getUserByEmail, getUserByEmailSchema } from "./tools/get-user-by-email.js";
 import { getProjectResource } from "./resources/project-resource.js";
 import { buildStandupPrompt } from "./prompts/standup.js";
 import { buildRetrospectivePrompt } from "./prompts/retrospective.js";
@@ -157,6 +158,16 @@ server.tool(
   }
 );
 
+server.tool(
+  "get_user_by_email",
+  "Look up a user by their email address and return their ID, name, and email",
+  getUserByEmailSchema.shape,
+  async (input) => {
+    const result = await getUserByEmail(input as z.infer<typeof getUserByEmailSchema>);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+);
+
 // --- Resources ---
 
 server.resource(
@@ -215,9 +226,14 @@ server.prompt(
 // --- Start ---
 
 async function main() {
+  if (!process.env.SUPABASE_USER_ACCESS_TOKEN) {
+    console.error("ERROR: SUPABASE_USER_ACCESS_TOKEN is required. The MCP server must run with the authenticated user's JWT.");
+    process.exit(1);
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("MCP server challenge48h running on stdio");
+  console.error("MCP server challenge48h running on stdio (user-authenticated mode)");
 }
 
 main().catch((err) => {
