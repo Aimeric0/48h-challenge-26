@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -13,29 +14,18 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Separator } from "@/components/ui/separator";
-import type { ProjectDetail, TaskStatus, ProjectStatus } from "@/types/database";
-
-const STATUS_CONFIG: Record<
+import { AddMemberDialog } from "@/components/projects/add-member-dialog";
+import { CreateTaskDialog } from "@/components/projects/create-task-dialog";
+import { ProjectStatusSelect } from "@/components/projects/project-status-select";
+import type {
+  ProjectDetail,
+  TaskStatus,
   ProjectStatus,
-  { label: string; className: string }
-> = {
-  planned: {
-    label: "Planifie",
-    className: "bg-muted text-muted-foreground",
-  },
-  in_progress: {
-    label: "En cours",
-    className: "bg-primary/10 text-primary",
-  },
-  completed: {
-    label: "Termine",
-    className:
-      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400",
-  },
-};
+  Profile,
+  ProjectMember,
+  Task,
+} from "@/types/database";
 
 const TASK_STATUS_CONFIG: Record<
   TaskStatus,
@@ -82,26 +72,41 @@ interface ProjectDetailClientProps {
   project: ProjectDetail;
 }
 
-export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
+export function ProjectDetailClient({ project: initialProject }: ProjectDetailClientProps) {
   const router = useRouter();
+  const [status, setStatus] = useState<ProjectStatus>(initialProject.status);
+  const [members, setMembers] = useState(initialProject.members);
+  const [tasks, setTasks] = useState(initialProject.tasks);
+
+  const doneCount = tasks.filter((t) => t.status === "done").length;
+  const now = new Date().toISOString();
+  const overdueCount = tasks.filter(
+    (t) => t.deadline && t.deadline < now && t.status !== "done"
+  ).length;
 
   const progress =
-    project.task_count > 0
-      ? Math.round((project.done_count / project.task_count) * 100)
-      : 0;
+    tasks.length > 0 ? Math.round((doneCount / tasks.length) * 100) : 0;
 
   const isOverdue =
-    project.deadline &&
-    new Date(project.deadline) < new Date() &&
-    project.status !== "completed";
+    initialProject.deadline &&
+    new Date(initialProject.deadline) < new Date() &&
+    status !== "completed";
 
-  const tasksByStatus: Record<TaskStatus, typeof project.tasks> = {
-    todo: project.tasks.filter((t) => t.status === "todo"),
-    in_progress: project.tasks.filter((t) => t.status === "in_progress"),
-    done: project.tasks.filter((t) => t.status === "done"),
+  const tasksByStatus: Record<TaskStatus, typeof tasks> = {
+    todo: tasks.filter((t) => t.status === "todo"),
+    in_progress: tasks.filter((t) => t.status === "in_progress"),
+    done: tasks.filter((t) => t.status === "done"),
   };
 
-  const owner = project.members.find((m) => m.role === "owner");
+  const owner = members.find((m) => m.role === "owner");
+
+  function handleMemberAdded(member: ProjectMember & { profile: Profile }) {
+    setMembers((prev) => [...prev, member]);
+  }
+
+  function handleTaskCreated(task: Task & { assignee: Profile | null }) {
+    setTasks((prev) => [...prev, task]);
+  }
 
   return (
     <div className="space-y-6">
@@ -121,35 +126,34 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           <div className="space-y-1">
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold tracking-tight">
-                {project.name}
+                {initialProject.name}
               </h1>
-              <Badge
-                variant="secondary"
-                className={STATUS_CONFIG[project.status].className}
-              >
-                {STATUS_CONFIG[project.status].label}
-              </Badge>
+              <ProjectStatusSelect
+                projectId={initialProject.id}
+                currentStatus={status}
+                onStatusChanged={setStatus}
+              />
             </div>
-            {project.description && (
+            {initialProject.description && (
               <p className="text-muted-foreground max-w-2xl">
-                {project.description}
+                {initialProject.description}
               </p>
             )}
             <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
-              {project.deadline && (
+              {initialProject.deadline && (
                 <span
                   className={`flex items-center gap-1 ${
                     isOverdue ? "text-destructive font-medium" : ""
                   }`}
                 >
                   <Calendar className="h-3.5 w-3.5" />
-                  {isOverdue ? "En retard — " : "Echéance : "}
-                  {formatDate(project.deadline)}
+                  {isOverdue ? "En retard — " : "Echeance : "}
+                  {formatDate(initialProject.deadline)}
                 </span>
               )}
               {owner && (
                 <span className="flex items-center gap-1">
-                  Créé par {owner.profile?.full_name || owner.profile?.email}
+                  Cree par {owner.profile?.full_name || owner.profile?.email}
                 </span>
               )}
             </div>
@@ -165,9 +169,9 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
           icon={CheckCircle2}
           iconClass="text-primary"
           sub={
-            project.task_count > 0
-              ? `${project.done_count}/${project.task_count} terminées`
-              : "Aucune tâche"
+            tasks.length > 0
+              ? `${doneCount}/${tasks.length} terminees`
+              : "Aucune tache"
           }
         />
         <StatCard
@@ -184,9 +188,9 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         />
         <StatCard
           label="En retard"
-          value={project.overdue_count}
+          value={overdueCount}
           icon={AlertTriangle}
-          iconClass={project.overdue_count > 0 ? "text-destructive" : "text-muted-foreground"}
+          iconClass={overdueCount > 0 ? "text-destructive" : "text-muted-foreground"}
         />
       </div>
 
@@ -203,28 +207,38 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Tasks — takes 2 cols */}
         <div className="lg:col-span-2 space-y-6">
-          {(["todo", "in_progress", "done"] as TaskStatus[]).map((status) => {
-            const config = TASK_STATUS_CONFIG[status];
-            const tasks = tasksByStatus[status];
+          {/* Task header with create button */}
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Taches</h2>
+            <CreateTaskDialog
+              projectId={initialProject.id}
+              members={members}
+              onTaskCreated={handleTaskCreated}
+            />
+          </div>
+
+          {(["todo", "in_progress", "done"] as TaskStatus[]).map((taskStatus) => {
+            const config = TASK_STATUS_CONFIG[taskStatus];
+            const statusTasks = tasksByStatus[taskStatus];
             return (
-              <div key={status}>
+              <div key={taskStatus}>
                 <div className="flex items-center gap-2 mb-3">
                   <div className={`h-2.5 w-2.5 rounded-full ${config.dotClass}`} />
-                  <h2 className={`font-semibold ${config.className}`}>
+                  <h3 className={`font-semibold ${config.className}`}>
                     {config.label}
-                  </h2>
+                  </h3>
                   <span className="text-sm text-muted-foreground">
-                    ({tasks.length})
+                    ({statusTasks.length})
                   </span>
                 </div>
 
-                {tasks.length === 0 ? (
+                {statusTasks.length === 0 ? (
                   <p className="text-sm text-muted-foreground pl-5">
-                    Aucune tâche
+                    Aucune tache
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {tasks.map((task) => {
+                    {statusTasks.map((task) => {
                       const taskOverdue =
                         task.deadline &&
                         new Date(task.deadline) < new Date() &&
@@ -288,13 +302,20 @@ export function ProjectDetailClient({ project }: ProjectDetailClientProps) {
         <div>
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-base flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Membres ({project.members.length})
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Membres ({members.length})
+                </CardTitle>
+                <AddMemberDialog
+                  projectId={initialProject.id}
+                  existingMemberIds={members.map((m) => m.user_id)}
+                  onMemberAdded={handleMemberAdded}
+                />
+              </div>
             </CardHeader>
             <CardContent className="space-y-3">
-              {project.members.map((member) => (
+              {members.map((member) => (
                 <div
                   key={member.user_id}
                   className="flex items-center gap-3"
