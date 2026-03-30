@@ -258,6 +258,7 @@ export function KanbanBoard({
   onDeleteTask,
 }: KanbanBoardProps) {
   const [activeTask, setActiveTask] = useState<TaskWithAssignee | null>(null);
+  const [dragOriginalStatus, setDragOriginalStatus] = useState<TaskStatus | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -292,6 +293,7 @@ export function KanbanBoard({
   function handleDragStart(event: DragStartEvent) {
     const task = tasks.find((t) => t.id === event.active.id);
     setActiveTask(task || null);
+    setDragOriginalStatus(task?.status || null);
   }
 
   function handleDragOver(event: DragOverEvent) {
@@ -362,11 +364,11 @@ export function KanbanBoard({
       persistPositions(updatedPositions);
     }
 
-    // Persist status change
-    const task = tasks.find((t) => t.id === activeId);
-    if (task && task.status !== overColumn) {
+    // Persist status change (compare with original status saved at drag start)
+    if (dragOriginalStatus && dragOriginalStatus !== overColumn) {
       persistStatus(activeId, overColumn);
     }
+    setDragOriginalStatus(null);
   }
 
   async function persistStatus(taskId: string, newStatus: TaskStatus) {
