@@ -3,13 +3,7 @@
     "challenge48h": {
       "command": "cmd",
       "args": ["/c", "npx", "tsx", "mcp/server.ts"],
-      "cwd": "C:/Users/natha/Documents/__Challenge48h/48h-challenge-26",
-      "env": {
-        "NEXT_PUBLIC_SUPABASE_URL": "${NEXT_PUBLIC_SUPABASE_URL}",
-        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY}",
-        "MCP_USER_EMAIL": "ton-email@example.com",
-        "MCP_USER_PASSWORD": "ton-mot-de-passe"
-      }
+      "cwd": "C:/Users/natha/Documents/__Challenge48h/48h-challenge-26"
     }
   }
 }
