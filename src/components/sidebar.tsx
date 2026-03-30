@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, FolderKanban, Settings, PanelLeftClose, PanelLeft } from "lucide-react";
+import { Home, FolderKanban, Kanban, Settings, PanelLeftClose, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/dashboard", label: "Accueil", icon: Home },
   { href: "/dashboard/projects", label: "Projets", icon: FolderKanban },
+  { href: "/dashboard/kanban", label: "Kanban", icon: Kanban },
   { href: "/dashboard/settings", label: "Parametres", icon: Settings },
 ];
 
