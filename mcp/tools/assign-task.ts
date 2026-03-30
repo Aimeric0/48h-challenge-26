@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const assignTaskSchema = z.object({
   task_id: z.string().describe("ID of the task to assign"),
@@ -7,6 +7,7 @@ export const assignTaskSchema = z.object({
 });
 
 export async function assignTask(input: z.infer<typeof assignTaskSchema>) {
+  const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("tasks")
     .update({ assignee_id: input.assignee_id, updated_at: new Date().toISOString() })

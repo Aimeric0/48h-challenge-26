@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const getOverdueTasksSchema = z.object({
   project_id: z.string().optional().describe("Filter by project ID (optional, returns all if omitted)"),
 });
 
 export async function getOverdueTasks(input: z.infer<typeof getOverdueTasksSchema>) {
+  const supabase = await getSupabase();
   const now = new Date().toISOString();
 
   let query = supabase

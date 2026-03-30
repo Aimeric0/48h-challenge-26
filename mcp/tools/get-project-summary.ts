@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const getProjectSummarySchema = z.object({
   project_id: z.string().describe("ID of the project to summarize"),
 });
 
 export async function getProjectSummary(input: z.infer<typeof getProjectSummarySchema>) {
+  const supabase = await getSupabase();
   const { data: project, error: projectError } = await supabase
     .from("projects")
     .select("*")

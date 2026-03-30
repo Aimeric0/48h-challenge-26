@@ -10,44 +10,44 @@ Le serveur MCP s'execute en tant que processus independant (stdio). Il n'a pas d
 
 ---
 
-## La solution : JWT utilisateur + RLS Supabase
+## La solution : auto-login + RLS Supabase
 
 ### Principe
 
-Au lieu d'utiliser la **Service Role Key** (cle admin qui bypass toutes les regles de securite), le serveur MCP utilise le **JWT (token d'acces) de l'utilisateur connecte** combine avec la **cle publique** (anon key) de Supabase.
+Au lieu d'utiliser la **Service Role Key** (cle admin qui bypass toutes les regles de securite), le serveur MCP **se connecte lui-meme** a Supabase Auth avec l'email et le mot de passe de l'utilisateur. Il obtient un JWT automatiquement, et Supabase le rafraichit quand il expire.
 
 Cela permet aux **Row Level Security (RLS) policies** de Supabase de s'appliquer automatiquement : chaque requete est executee **en tant que** l'utilisateur authentifie.
 
 ### Schema du flux
 
 ```
-Utilisateur connecte (navigateur)
+Configuration Claude Desktop (.mcp.json)
         |
-        | 1. Se connecte via Supabase Auth → obtient un JWT
-        |
-        v
-   Frontend / Client MCP
-        |
-        | 2. Lance le serveur MCP avec SUPABASE_USER_ACCESS_TOKEN=<jwt>
+        | 1. Contient MCP_USER_EMAIL + MCP_USER_PASSWORD
         |
         v
-   Serveur MCP (stdio)
+   Serveur MCP (stdio) — au demarrage
         |
-        | 3. Cree un client Supabase avec le JWT de l'utilisateur
-        | 4. Chaque appel tool passe par les RLS policies
+        | 2. Appelle supabase.auth.signInWithPassword()
+        | 3. Obtient un JWT valide (rafraichi automatiquement)
+        |
+        v
+   Chaque appel tool
+        |
+        | 4. Utilise le client Supabase authentifie
+        | 5. Les RLS policies s'appliquent via auth.uid()
         |
         v
    Supabase (base de donnees)
         |
-        | 5. auth.uid() = l'utilisateur connecte
-        | 6. Les policies autorisent ou refusent l'operation
+        | 6. Autorise ou refuse l'operation selon les policies
 ```
 
 ### Ce qui se passe concretement
 
-1. L'utilisateur se connecte sur l'app → Supabase lui delivre un **JWT** (JSON Web Token)
-2. Ce JWT est passe au serveur MCP via la variable d'environnement `SUPABASE_USER_ACCESS_TOKEN`
-3. Le serveur MCP cree un client Supabase qui inclut ce token dans chaque requete HTTP
+1. L'email et le mot de passe sont configures dans `.mcp.json` (env vars `MCP_USER_EMAIL` et `MCP_USER_PASSWORD`)
+2. Au premier appel d'un tool, le serveur MCP appelle `signInWithPassword()` → obtient un JWT
+3. Le client Supabase est configure avec `autoRefreshToken: true` → le JWT est rafraichi automatiquement
 4. Supabase decode le JWT → extrait le `user_id` → le rend disponible via `auth.uid()`
 5. Les **RLS policies** filtrent automatiquement les donnees
 
@@ -90,13 +90,30 @@ Utilisateur connecte (navigateur)
 
 ---
 
-## Variable d'environnement requise
+## Variables d'environnement requises
 
 ```bash
-SUPABASE_USER_ACCESS_TOKEN=<jwt_de_l_utilisateur>
+MCP_USER_EMAIL=utilisateur@example.com
+MCP_USER_PASSWORD=mot-de-passe
 ```
 
-Le serveur MCP **refuse de demarrer** si cette variable n'est pas fournie. Un message d'erreur explicite est affiche.
+Le serveur MCP **refuse de demarrer** si ces variables ne sont pas fournies.
+
+### Configuration Claude Desktop (`.mcp.json`)
+
+```json
+{
+  "mcpServers": {
+    "challenge48h": {
+      "command": "cmd",
+      "args": ["/c", "node_modules\\.bin\\tsx.cmd", "mcp/server.ts"],
+      "cwd": "C:/chemin/vers/48h-challenge-26"
+    }
+  }
+}
+```
+
+Les credentials (`MCP_USER_EMAIL`, `MCP_USER_PASSWORD`) sont lus depuis `.env.local` a la racine du projet — pas besoin de les dupliquer dans la config MCP.
 
 ---
 
@@ -109,12 +126,13 @@ Le serveur MCP **refuse de demarrer** si cette variable n'est pas fournie. Un me
 - N'importe quel tool pouvait lire/modifier/supprimer n'importe quelle donnee
 - Le `user_id` etait passe en parametre par l'assistant → aucune garantie que c'etait le bon
 
-### Apres (JWT utilisateur)
+### Apres (auto-login utilisateur)
 
-- Le serveur MCP utilise le JWT de l'utilisateur connecte
+- Le serveur MCP se connecte avec les identifiants de l'utilisateur
 - **Les RLS policies s'appliquent automatiquement**
 - L'utilisateur ne peut acceder qu'aux projets/taches dont il est membre
 - Impossible de supprimer le projet d'un autre utilisateur
+- Le JWT est **rafraichi automatiquement** — pas d'expiration
 - L'identite est **cryptographiquement garantie** par le JWT (signe par Supabase)
 
 ---
@@ -125,6 +143,7 @@ Le serveur MCP **refuse de demarrer** si cette variable n'est pas fournie. Un me
 2. **Impossible de contourner** : meme si l'assistant essaie de passer un mauvais `user_id`, Supabase utilise le JWT (pas le parametre)
 3. **Coherence** : les memes regles s'appliquent que l'utilisateur passe par le frontend web ou par l'assistant MCP
 4. **Pas de code d'autorisation custom** : zero logique de verification dans les tools, Supabase fait tout
+5. **Zero intervention manuelle** : pas besoin de copier un token, le serveur se connecte tout seul
 
 ---
 
@@ -132,6 +151,10 @@ Le serveur MCP **refuse de demarrer** si cette variable n'est pas fournie. Un me
 
 | Fichier | Modification |
 |---------|-------------|
-| `mcp/lib/supabase.ts` | Remplace `SERVICE_ROLE_KEY` par `PUBLISHABLE_KEY` + `Bearer <JWT>` |
-| `mcp/server.ts` | Validation du token au demarrage, erreur explicite si absent |
+| `mcp/lib/supabase.ts` | Auto-login via `signInWithPassword()`, export `getSupabase()` async |
+| `mcp/server.ts` | Validation des credentials au demarrage |
+| `mcp/tools/*.ts` | Import `getSupabase` au lieu de `supabase`, `await getSupabase()` au debut de chaque fonction |
+| `mcp/tools/get-current-user.ts` | Nouveau tool : retourne l'identite de l'utilisateur MCP authentifie |
+| `mcp/resources/*.ts` | Idem |
+| `mcp/prompts/*.ts` | Idem |
 | `supabase/schema.sql` | Policy profiles elargie : tout utilisateur authentifie peut voir les profils |

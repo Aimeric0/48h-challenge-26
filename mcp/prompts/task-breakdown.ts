@@ -1,9 +1,10 @@
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export async function buildTaskBreakdownPrompt(
   projectId: string,
   objective: string
 ): Promise<string> {
+  const supabase = await getSupabase();
   const { data: project } = await supabase
     .from("projects")
     .select("name, description")

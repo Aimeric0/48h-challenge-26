@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const createTaskSchema = z.object({
   project_id: z.string().describe("ID of the project to create the task in"),
@@ -11,6 +11,7 @@ export const createTaskSchema = z.object({
 });
 
 export async function createTask(input: z.infer<typeof createTaskSchema>) {
+  const supabase = await getSupabase();
   const { data: existing } = await supabase
     .from("tasks")
     .select("position")

@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const listMembersSchema = z.object({
   project_id: z.string().describe("ID of the project"),
 });
 
 export async function listMembers(input: z.infer<typeof listMembersSchema>) {
+  const supabase = await getSupabase();
   const { data: members, error } = await supabase
     .from("project_members")
     .select("user_id, role, joined_at")

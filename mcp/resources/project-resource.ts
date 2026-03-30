@@ -1,6 +1,7 @@
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export async function getProjectResource(projectId: string): Promise<string> {
+  const supabase = await getSupabase();
   const { data: project, error: projectError } = await supabase
     .from("projects")
     .select("*")

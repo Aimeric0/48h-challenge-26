@@ -16,6 +16,7 @@ import { getOverdueTasks, getOverdueTasksSchema } from "./tools/get-overdue-task
 import { getUserTasks, getUserTasksSchema } from "./tools/get-user-tasks.js";
 import { getProjectStats, getProjectStatsSchema } from "./tools/get-project-stats.js";
 import { getUserByEmail, getUserByEmailSchema } from "./tools/get-user-by-email.js";
+import { getCurrentUser, getCurrentUserSchema } from "./tools/get-current-user.js";
 import { getProjectResource } from "./resources/project-resource.js";
 import { buildStandupPrompt } from "./prompts/standup.js";
 import { buildRetrospectivePrompt } from "./prompts/retrospective.js";
@@ -168,6 +169,16 @@ server.tool(
   }
 );
 
+server.tool(
+  "get_current_user",
+  "Get the currently authenticated MCP user's ID, email, and name",
+  getCurrentUserSchema.shape,
+  async () => {
+    const result = await getCurrentUser();
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+);
+
 // --- Resources ---
 
 server.resource(
@@ -226,8 +237,8 @@ server.prompt(
 // --- Start ---
 
 async function main() {
-  if (!process.env.SUPABASE_USER_ACCESS_TOKEN) {
-    console.error("ERROR: SUPABASE_USER_ACCESS_TOKEN is required. The MCP server must run with the authenticated user's JWT.");
+  if (!process.env.MCP_USER_EMAIL || !process.env.MCP_USER_PASSWORD) {
+    console.error("ERROR: MCP_USER_EMAIL and MCP_USER_PASSWORD are required.");
     process.exit(1);
   }
 

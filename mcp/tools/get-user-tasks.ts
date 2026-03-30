@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const getUserTasksSchema = z.object({
   user_id: z.string().describe("ID of the user"),
@@ -10,6 +10,7 @@ export const getUserTasksSchema = z.object({
 });
 
 export async function getUserTasks(input: z.infer<typeof getUserTasksSchema>) {
+  const supabase = await getSupabase();
   let query = supabase
     .from("tasks")
     .select("*, projects(name)")

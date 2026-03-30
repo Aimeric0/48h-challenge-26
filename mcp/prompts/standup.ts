@@ -1,6 +1,7 @@
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export async function buildStandupPrompt(projectId: string, userName?: string): Promise<string> {
+  const supabase = await getSupabase();
   const { data: project } = await supabase
     .from("projects")
     .select("name, description, status, deadline")

@@ -3,7 +3,7 @@
 > Serveur MCP `challenge48h-mcp` v1.0.0
 > Transport : stdio
 > SDK : `@modelcontextprotocol/sdk`
-> Authentification : JWT utilisateur via `SUPABASE_USER_ACCESS_TOKEN` (voir [MCP_Info.md](./MCP_Info.md))
+> Authentification : auto-login utilisateur via `MCP_USER_EMAIL` / `MCP_USER_PASSWORD` (voir [MCP_Info.md](./MCP_Info.md))
 
 ---
 
@@ -226,6 +226,20 @@ Statistiques détaillées d'un projet : taux de complétion et vélocité hebdom
 ---
 
 ### Utilisateurs
+
+#### `get_current_user`
+
+Retourne l'identité de l'utilisateur actuellement authentifié sur le serveur MCP. Aucun paramètre requis — l'identité est déduite automatiquement de la session MCP.
+
+| Paramètre | Type | Requis | Description |
+|-----------|------|--------|-------------|
+| *(aucun)* | — | — | — |
+
+**Retour :** `{ id, email, full_name }`.
+
+**Cas d'usage typique :** l'assistant appelle ce tool pour obtenir le `user_id` de l'utilisateur courant avant de créer un projet (`owner_id`) ou de lister ses tâches (`user_id`). L'utilisateur n'a jamais besoin de fournir son ID manuellement.
+
+---
 
 #### `get_user_by_email`
 

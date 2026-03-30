@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const inviteMemberSchema = z.object({
   project_id: z.string().describe("ID of the project"),
@@ -8,6 +8,7 @@ export const inviteMemberSchema = z.object({
 });
 
 export async function inviteMember(input: z.infer<typeof inviteMemberSchema>) {
+  const supabase = await getSupabase();
   // Find the user by email
   const { data: profile, error: profileError } = await supabase
     .from("profiles")

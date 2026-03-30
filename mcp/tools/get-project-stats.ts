@@ -1,11 +1,12 @@
 import { z } from "zod";
-import { supabase } from "../lib/supabase.js";
+import { getSupabase } from "../lib/supabase.js";
 
 export const getProjectStatsSchema = z.object({
   project_id: z.string().describe("ID of the project"),
 });
 
 export async function getProjectStats(input: z.infer<typeof getProjectStatsSchema>) {
+  const supabase = await getSupabase();
   const now = new Date();
 
   const { data: tasks, error } = await supabase
