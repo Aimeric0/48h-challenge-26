@@ -18,10 +18,69 @@ Application web de gestion de projet pensee par et pour les etudiants en informa
 - @modelcontextprotocol/sdk pour le serveur MCP
 
 ## Regles ABSOLUES
-- Ne fais JAMAIS de git commit toi-meme, je commite manuellement
-- Pas de Co-authored-by dans les commits
+- Tu es autorise a effectuer des `git commit` et des `git push` directement
+- JAMAIS de Co-authored-by, signature IA, ou attribution a Claude dans les commits
 - Code et commentaires en anglais, UI en francais
 - Utilise shadcn/ui pour TOUT composant (boutons, inputs, modals, tables, etc.)
+
+## 🚫 Règles Git absolues
+
+### Identité dans les commits
+
+Claude **est autorise** a effectuer des `git commit` et des `git push` directement.
+
+Claude **ne doit JAMAIS** :
+- Se designer comme co-auteur dans les messages de commit (`Co-authored-by: Claude`)
+- Ajouter des trailers du type `Co-authored-by`, `AI-generated-by`, ou tout equivalent
+- Modifier la configuration `user.name` / `user.email` du depot ou de l'environnement
+- Signer des commits en son nom
+- Ajouter quelque mention que ce soit revelant l'utilisation d'une IA
+
+Le developpeur humain doit rester l'**unique auteur visible** de chaque commit.
+
+### Messages de commit
+
+Utiliser le format **Conventional Commits** :
+
+```
+<type>(<scope>): <description courte en impératif>
+
+[corps optionnel — explication du pourquoi, pas du comment]
+
+[footer optionnel — références, breaking changes]
+```
+
+Types autorisés :
+
+| Type       | Usage                                              |
+|------------|----------------------------------------------------|
+| `feat`     | Nouvelle fonctionnalité                            |
+| `fix`      | Correction de bug                                  |
+| `docs`     | Documentation uniquement                          |
+| `style`    | Formatage, espaces (aucun changement fonctionnel) |
+| `refactor` | Refactorisation sans ajout ni correction          |
+| `perf`     | Amélioration de performance                        |
+| `test`     | Ajout ou modification de tests                    |
+| `build`    | Système de build, dépendances                     |
+| `ci`       | Configuration CI/CD                               |
+| `chore`    | Tâches diverses sans impact fonctionnel           |
+| `revert`   | Annulation d'un commit précédent                  |
+
+Exemples valides :
+```
+feat(auth): ajouter la connexion OAuth2 avec Google
+fix(api): gérer la réponse nulle de la passerelle de paiement
+refactor(cart): extraire la logique de calcul des remises
+```
+
+Règles :
+- **Langue : français obligatoire** — la description, le corps et les footers sont toujours rédigés en français
+- Le type et le scope restent en anglais (minuscules), seule la description est en français
+- Ligne de titre ≤ 72 caractères
+- Impératif présent (`ajouter`, `corriger`, `mettre à jour` — pas `ajouté`, `corrigé`)
+- Pas de majuscule après le type
+- Pas de point final
+- Corps séparé du titre par une ligne vide
 
 ## Socle obligatoire (55 pts)
 
