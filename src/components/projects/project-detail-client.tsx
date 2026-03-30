@@ -84,9 +84,10 @@ function formatDate(date: string): string {
 
 interface ProjectDetailClientProps {
   project: ProjectDetail;
+  currentUserId: string;
 }
 
-export function ProjectDetailClient({ project: initialProject }: ProjectDetailClientProps) {
+export function ProjectDetailClient({ project: initialProject, currentUserId }: ProjectDetailClientProps) {
   const router = useRouter();
   const [status, setStatus] = useState<ProjectStatus>(initialProject.status);
   const [members, setMembers] = useState(initialProject.members);
@@ -113,6 +114,21 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
   };
 
   const owner = members.find((m) => m.role === "owner");
+  const isOwner = owner?.user_id === currentUserId;
+
+  async function handleRemoveMember(userId: string) {
+    const supabase = createClient();
+    const { error } = await supabase
+      .from("project_members")
+      .delete()
+      .eq("project_id", initialProject.id)
+      .eq("user_id", userId);
+    if (error) {
+      console.error("[remove-member] Failed:", error);
+      return;
+    }
+    setMembers((prev) => prev.filter((m) => m.user_id !== userId));
+  }
 
   function handleMemberAdded(member: ProjectMember & { profile: Profile }) {
     setMembers((prev) => [...prev, member]);
@@ -419,6 +435,16 @@ export function ProjectDetailClient({ project: initialProject }: ProjectDetailCl
                       {member.role === "owner" ? "Propriétaire" : "Membre"}
                     </p>
                   </div>
+                  {isOwner && member.role !== "owner" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-destructive shrink-0"
+                      onClick={() => handleRemoveMember(member.user_id)}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </CardContent>
