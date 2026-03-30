@@ -226,9 +226,14 @@ server.prompt(
 // --- Start ---
 
 async function main() {
+  if (!process.env.SUPABASE_USER_ACCESS_TOKEN) {
+    console.error("ERROR: SUPABASE_USER_ACCESS_TOKEN is required. The MCP server must run with the authenticated user's JWT.");
+    process.exit(1);
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error("MCP server challenge48h running on stdio");
+  console.error("MCP server challenge48h running on stdio (user-authenticated mode)");
 }
 
 main().catch((err) => {

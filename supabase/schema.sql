@@ -12,9 +12,9 @@ create table public.profiles (
 alter table public.profiles enable row level security;
 
 -- Profiles policies
-create policy "Users can view their own profile"
+create policy "Authenticated users can view profiles"
   on public.profiles for select
-  using (auth.uid() = id);
+  using (auth.role() = 'authenticated');
 
 create policy "Users can update their own profile"
   on public.profiles for update
