@@ -10,10 +10,10 @@ import {
   AlertTriangle,
   Users,
   ListTodo,
-  CircleDot,
   Trash2,
   X,
 } from "lucide-react";
+import { KanbanBoard } from "@/components/projects/kanban-board";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -31,7 +31,6 @@ import {
 import { AddMemberDialog } from "@/components/projects/add-member-dialog";
 import { CreateTaskDialog } from "@/components/projects/create-task-dialog";
 import { ProjectStatusSelect } from "@/components/projects/project-status-select";
-import { TaskStatusSelect } from "@/components/projects/task-status-select";
 import { createClient } from "@/lib/supabase/client";
 import type {
   ProjectDetail,
@@ -41,30 +40,6 @@ import type {
   ProjectMember,
   Task,
 } from "@/types/database";
-
-const TASK_STATUS_CONFIG: Record<
-  TaskStatus,
-  { label: string; icon: React.ElementType; className: string; dotClass: string }
-> = {
-  todo: {
-    label: "A faire",
-    icon: CircleDot,
-    className: "text-muted-foreground",
-    dotClass: "bg-muted-foreground",
-  },
-  in_progress: {
-    label: "En cours",
-    icon: Clock,
-    className: "text-primary",
-    dotClass: "bg-primary",
-  },
-  done: {
-    label: "Terminé",
-    icon: CheckCircle2,
-    className: "text-emerald-600 dark:text-emerald-400",
-    dotClass: "bg-emerald-600 dark:bg-emerald-400",
-  },
-};
 
 function getInitials(name: string): string {
   return name
@@ -137,12 +112,6 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
 
   function handleTaskCreated(task: Task & { assignee: Profile | null }) {
     setTasks((prev) => [...prev, task]);
-  }
-
-  function handleTaskStatusChanged(taskId: string, status: TaskStatus) {
-    setTasks((prev) =>
-      prev.map((t) => (t.id === taskId ? { ...t, status } : t))
-    );
   }
 
   const [deletingProject, setDeletingProject] = useState(false);
@@ -301,112 +270,25 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
         </div>
       </div>
 
+      {/* Kanban + Members */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Tâches</h2>
+        <CreateTaskDialog
+          projectId={initialProject.id}
+          members={members}
+          onTaskCreated={handleTaskCreated}
+        />
+      </div>
+
+      <KanbanBoard
+        tasks={tasks}
+        onTasksChange={setTasks}
+        onDeleteTask={handleDeleteTask}
+      />
+
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Tasks — takes 2 cols */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Task header with create button */}
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">Tâches</h2>
-            <CreateTaskDialog
-              projectId={initialProject.id}
-              members={members}
-              onTaskCreated={handleTaskCreated}
-            />
-          </div>
-
-          {(["todo", "in_progress", "done"] as TaskStatus[]).map((taskStatus) => {
-            const config = TASK_STATUS_CONFIG[taskStatus];
-            const statusTasks = tasksByStatus[taskStatus];
-            return (
-              <div key={taskStatus}>
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`h-2.5 w-2.5 rounded-full ${config.dotClass}`} />
-                  <h3 className={`font-semibold ${config.className}`}>
-                    {config.label}
-                  </h3>
-                  <span className="text-sm text-muted-foreground">
-                    ({statusTasks.length})
-                  </span>
-                </div>
-
-                {statusTasks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground pl-5">
-                    Aucune tâche
-                  </p>
-                ) : (
-                  <div className="space-y-2">
-                    {statusTasks.map((task) => {
-                      const taskOverdue =
-                        task.deadline &&
-                        new Date(task.deadline) < new Date() &&
-                        task.status !== "done";
-
-                      return (
-                        <Card key={task.id} className="shadow-none">
-                          <CardContent className="flex items-center gap-3 py-3 px-4">
-                            <TaskStatusSelect
-                              taskId={task.id}
-                              currentStatus={task.status}
-                              onStatusChanged={handleTaskStatusChanged}
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium text-sm truncate">
-                                {task.title}
-                              </p>
-                              {task.description && (
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {task.description}
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              {task.deadline && (
-                                <span
-                                  className={`text-xs flex items-center gap-1 ${
-                                    taskOverdue
-                                      ? "text-destructive font-medium"
-                                      : "text-muted-foreground"
-                                  }`}
-                                >
-                                  <Calendar className="h-3 w-3" />
-                                  {new Date(task.deadline).toLocaleDateString(
-                                    "fr-FR",
-                                    { day: "numeric", month: "short" }
-                                  )}
-                                </span>
-                              )}
-                              {task.assignee && (
-                                <Avatar className="h-6 w-6">
-                                  <AvatarFallback className="text-[9px] bg-primary/10 text-primary">
-                                    {getInitials(
-                                      task.assignee.full_name ||
-                                        task.assignee.email
-                                    )}
-                                  </AvatarFallback>
-                                </Avatar>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                                onClick={() => handleDeleteTask(task.id)}
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Sidebar — Members */}
-        <div>
+        {/* Members */}
+        <div className="lg:col-start-3">
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
