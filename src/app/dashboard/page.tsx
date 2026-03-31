@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Settings, CheckCircle2, FolderCheck, Flame } from "lucide-react";
 import Link from "next/link";
 import { XpBar } from "@/components/xp-bar";
+import { BadgesGrid } from "@/components/badges-grid";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,15 @@ export default async function DashboardPage() {
           <XpBar xp={profile?.xp ?? 0} level={profile?.level ?? 1} />
         </CardContent>
       </Card>
+
+      {/* Badges */}
+      <BadgesGrid
+        stats={{
+          tasksCompleted: tasksCompleted ?? 0,
+          projectsCompleted: projectsCompleted ?? 0,
+          level: profile?.level ?? 1,
+        }}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="shadow-none">
