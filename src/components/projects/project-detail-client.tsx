@@ -85,8 +85,10 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
     status !== "completed";
 
   const tasksByStatus: Record<TaskStatus, typeof tasks> = {
+    backlog: tasks.filter((t) => t.status === "backlog"),
     todo: tasks.filter((t) => t.status === "todo"),
     in_progress: tasks.filter((t) => t.status === "in_progress"),
+    review: tasks.filter((t) => t.status === "review"),
     done: tasks.filter((t) => t.status === "done"),
   };
 

@@ -22,10 +22,12 @@ import {
 import { useDroppable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
 import {
+  Archive,
   Calendar,
   CheckCircle2,
   CircleDot,
   Clock,
+  Eye,
   GripVertical,
   X,
 } from "lucide-react";
@@ -48,6 +50,14 @@ interface KanbanBoardProps {
 
 const COLUMNS: { id: TaskStatus; label: string; icon: React.ElementType; color: string; dotClass: string; bgClass: string }[] = [
   {
+    id: "backlog",
+    label: "Backlog",
+    icon: Archive,
+    color: "text-slate-500 dark:text-slate-400",
+    dotClass: "bg-slate-500 dark:bg-slate-400",
+    bgClass: "bg-slate-50 dark:bg-slate-950/20",
+  },
+  {
     id: "todo",
     label: "A faire",
     icon: CircleDot,
@@ -62,6 +72,14 @@ const COLUMNS: { id: TaskStatus; label: string; icon: React.ElementType; color: 
     color: "text-primary",
     dotClass: "bg-primary",
     bgClass: "bg-primary/5",
+  },
+  {
+    id: "review",
+    label: "En revue",
+    icon: Eye,
+    color: "text-amber-600 dark:text-amber-400",
+    dotClass: "bg-amber-600 dark:bg-amber-400",
+    bgClass: "bg-amber-50 dark:bg-amber-950/20",
   },
   {
     id: "done",
@@ -267,8 +285,10 @@ export function KanbanBoard({
 
   const tasksByStatus = useMemo(() => {
     const grouped: Record<TaskStatus, TaskWithAssignee[]> = {
+      backlog: [],
       todo: [],
       in_progress: [],
+      review: [],
       done: [],
     };
     for (const task of tasks) {

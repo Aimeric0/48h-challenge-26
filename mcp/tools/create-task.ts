@@ -5,7 +5,7 @@ export const createTaskSchema = z.object({
   project_id: z.string().describe("ID of the project to create the task in"),
   title: z.string().describe("Title of the task"),
   description: z.string().optional().describe("Detailed description of the task"),
-  status: z.enum(["todo", "in_progress", "done"]).optional().default("todo").describe("Task status"),
+  status: z.enum(["backlog", "todo", "in_progress", "review", "done"]).optional().default("todo").describe("Task status"),
   assignee_id: z.string().optional().describe("User ID of the person assigned to this task"),
   deadline: z.string().optional().describe("Deadline in ISO 8601 format (e.g. 2026-04-01T00:00:00Z)"),
 });
