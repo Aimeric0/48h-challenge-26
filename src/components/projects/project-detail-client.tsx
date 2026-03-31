@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { KanbanBoard } from "@/components/projects/kanban-board";
+import { TeamLeaderboard } from "@/components/projects/team-leaderboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -69,6 +70,14 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
   const [status, setStatus] = useState<ProjectStatus>(initialProject.status);
   const [members, setMembers] = useState(initialProject.members);
   const [tasks, setTasks] = useState(initialProject.tasks);
+
+  const handleStatusChanged = useCallback((newStatus: ProjectStatus) => {
+    setStatus(newStatus);
+  }, []);
+
+  const handleTasksChange = useCallback((newTasks: typeof tasks) => {
+    setTasks(newTasks);
+  }, []);
 
   const doneCount = tasks.filter((t) => t.status === "done").length;
   const now = new Date().toISOString();
@@ -172,7 +181,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
               <ProjectStatusSelect
                 projectId={initialProject.id}
                 currentStatus={status}
-                onStatusChanged={setStatus}
+                onStatusChanged={handleStatusChanged}
               />
             </div>
           </div>
@@ -287,13 +296,16 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
 
       <KanbanBoard
         tasks={tasks}
-        onTasksChange={setTasks}
+        onTasksChange={handleTasksChange}
         onDeleteTask={handleDeleteTask}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Leaderboard */}
+        <TeamLeaderboard members={members} />
+
         {/* Members */}
-        <div className="lg:col-start-3">
+        <div>
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">

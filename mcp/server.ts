@@ -19,6 +19,7 @@ import { getUserByEmail, getUserByEmailSchema } from "./tools/get-user-by-email.
 import { getCurrentUser, getCurrentUserSchema } from "./tools/get-current-user.js";
 import { updateProfile, updateProfileSchema } from "./tools/update-profile.js";
 import { listTools, listToolsSchema } from "./tools/list-tools.js";
+import { getUserGamification, getUserGamificationSchema } from "./tools/get-user-gamification.js";
 import { getProjectResource } from "./resources/project-resource.js";
 import { getUserProjectsResource } from "./resources/user-projects-resource.js";
 import { buildStandupPrompt } from "./prompts/standup.js";
@@ -198,6 +199,16 @@ server.tool(
   updateProfileSchema.shape,
   async (input) => {
     const result = await updateProfile(input as z.infer<typeof updateProfileSchema>);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+);
+
+server.tool(
+  "get_user_gamification",
+  "Get a user's gamification profile: current level, XP, title, and badges. Any user can view any other user's profile.",
+  getUserGamificationSchema.shape,
+  async (input) => {
+    const result = await getUserGamification(input as z.infer<typeof getUserGamificationSchema>);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
   }
 );

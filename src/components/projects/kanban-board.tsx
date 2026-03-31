@@ -13,6 +13,7 @@ import {
   type DragEndEvent,
   type DragOverEvent,
 } from "@dnd-kit/core";
+import { useId } from "react";
 import {
   SortableContext,
   useSortable,
@@ -275,6 +276,7 @@ export function KanbanBoard({
   onTasksChange,
   onDeleteTask,
 }: KanbanBoardProps) {
+  const dndId = useId();
   const [activeTask, setActiveTask] = useState<TaskWithAssignee | null>(null);
   const [dragOriginalStatus, setDragOriginalStatus] = useState<TaskStatus | null>(null);
 
@@ -435,6 +437,7 @@ export function KanbanBoard({
   return (
     <ScrollArea className="w-full">
       <DndContext
+        id={dndId}
         sensors={sensors}
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
