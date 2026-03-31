@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -277,8 +277,17 @@ export function KanbanBoard({
   onDeleteTask,
 }: KanbanBoardProps) {
   const dndId = useId();
+  const [localTasks, setLocalTasks] = useState(tasks);
   const [activeTask, setActiveTask] = useState<TaskWithAssignee | null>(null);
   const [dragOriginalStatus, setDragOriginalStatus] = useState<TaskStatus | null>(null);
+  const isDragging = useRef(false);
+
+  // Sync from parent when not dragging
+  useEffect(() => {
+    if (!isDragging.current) {
+      setLocalTasks(tasks);
+    }
+  }, [tasks]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -293,15 +302,14 @@ export function KanbanBoard({
       review: [],
       done: [],
     };
-    for (const task of tasks) {
+    for (const task of localTasks) {
       grouped[task.status].push(task);
     }
-    // Sort by position within each column
     for (const status of Object.keys(grouped) as TaskStatus[]) {
       grouped[status].sort((a, b) => a.position - b.position);
     }
     return grouped;
-  }, [tasks]);
+  }, [localTasks]);
 
   function findColumnOfTask(taskId: string): TaskStatus | null {
     for (const [status, columnTasks] of Object.entries(tasksByStatus)) {
@@ -313,7 +321,8 @@ export function KanbanBoard({
   }
 
   function handleDragStart(event: DragStartEvent) {
-    const task = tasks.find((t) => t.id === event.active.id);
+    isDragging.current = true;
+    const task = localTasks.find((t) => t.id === event.active.id);
     setActiveTask(task || null);
     setDragOriginalStatus(task?.status || null);
   }
@@ -326,25 +335,31 @@ export function KanbanBoard({
     const overId = over.id as string;
 
     const activeColumn = findColumnOfTask(activeId);
-    // over can be a task ID or a column ID
     const overColumn =
       (COLUMNS.find((c) => c.id === overId)?.id as TaskStatus) ||
       findColumnOfTask(overId);
 
     if (!activeColumn || !overColumn || activeColumn === overColumn) return;
 
-    // Move task to new column optimistically
-    const updated = tasks.map((t) =>
-      t.id === activeId ? { ...t, status: overColumn } : t
+    // Update local state only — no parent re-render during drag
+    setLocalTasks((prev) =>
+      prev.map((t) =>
+        t.id === activeId ? { ...t, status: overColumn } : t
+      )
     );
-    onTasksChange(updated);
   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
     setActiveTask(null);
+    isDragging.current = false;
 
-    if (!over) return;
+    if (!over) {
+      // Cancelled — revert to parent state
+      setLocalTasks(tasks);
+      setDragOriginalStatus(null);
+      return;
+    }
 
     const activeId = active.id as string;
     const overId = over.id as string;
@@ -366,19 +381,20 @@ export function KanbanBoard({
 
     if (activeIndex !== -1 && overIndex !== -1 && activeIndex !== overIndex) {
       const reordered = arrayMove(columnTasks, activeIndex, overIndex);
-      // Update positions
       const updatedPositions = reordered.map((t, i) => ({
         ...t,
         position: i,
       }));
-      const updatedTasks = tasks.map((t) => {
+      const finalTasks = localTasks.map((t) => {
         const updated = updatedPositions.find((u) => u.id === t.id);
         return updated || t;
       });
-      onTasksChange(updatedTasks);
+      setLocalTasks(finalTasks);
+      onTasksChange(finalTasks);
       persistPositions(updatedPositions);
     } else {
-      // Just moved to another column, update positions
+      // Commit current local state to parent
+      onTasksChange(localTasks);
       const updatedPositions = columnTasks.map((t, i) => ({
         ...t,
         position: i,
@@ -386,7 +402,7 @@ export function KanbanBoard({
       persistPositions(updatedPositions);
     }
 
-    // Persist status change (compare with original status saved at drag start)
+    // Persist status change
     if (dragOriginalStatus && dragOriginalStatus !== overColumn) {
       persistStatus(activeId, overColumn);
     }
@@ -395,7 +411,7 @@ export function KanbanBoard({
 
   async function persistStatus(taskId: string, newStatus: TaskStatus) {
     const supabase = createClient();
-    const task = tasks.find((t) => t.id === taskId);
+    const task = localTasks.find((t) => t.id === taskId);
 
     // Auto-assign current user when dropping in "done" without assignee
     const updateData: Record<string, string> = { status: newStatus };
