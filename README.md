@@ -89,9 +89,23 @@ cp .env.local.example .env.local
 Variables requises dans `.env.local` :
 
 ```
+# Supabase — App Web
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your-publishable-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# MCP Server — compte de service utilise par le serveur MCP pour s'authentifier
+MCP_USER_EMAIL=mcp@example.com
+MCP_USER_PASSWORD=your-mcp-password
 ```
+
+| Variable | Ou la trouver |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Dashboard Supabase → Settings → API → Project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Dashboard Supabase → Settings → API → Project API keys (anon/public) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Dashboard Supabase → Settings → API → Project API keys (service_role) |
+| `MCP_USER_EMAIL` | Email d'un compte Supabase dedie au serveur MCP |
+| `MCP_USER_PASSWORD` | Mot de passe de ce compte |
 
 ### Base de donnees
 
@@ -135,7 +149,9 @@ Le serveur MCP demarre automatiquement via Claude Desktop.
       ],
       "env": {
         "NEXT_PUBLIC_SUPABASE_URL": "<votre_supabase_url>",
-        "SUPABASE_SERVICE_ROLE_KEY": "<votre_service_role_key>"
+        "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY": "<votre_publishable_key>",
+        "MCP_USER_EMAIL": "<email_compte_mcp>",
+        "MCP_USER_PASSWORD": "<mot_de_passe_compte_mcp>"
       }
     }
   }
