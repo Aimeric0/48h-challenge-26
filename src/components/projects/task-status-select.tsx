@@ -22,12 +22,14 @@ const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
 interface TaskStatusSelectProps {
   taskId: string;
   currentStatus: TaskStatus;
+  assigneeId?: string | null;
   onStatusChanged: (taskId: string, status: TaskStatus) => void;
 }
 
 export function TaskStatusSelect({
   taskId,
   currentStatus,
+  assigneeId,
   onStatusChanged,
 }: TaskStatusSelectProps) {
   const [loading, setLoading] = useState(false);
@@ -39,9 +41,19 @@ export function TaskStatusSelect({
     setLoading(true);
     try {
       const supabase = createClient();
+
+      // Auto-assign current user when completing an unassigned task
+      const updateData: Record<string, string> = { status: newStatus };
+      if (newStatus === "done" && !assigneeId) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          updateData.assignee_id = user.id;
+        }
+      }
+
       const { error } = await supabase
         .from("tasks")
-        .update({ status: newStatus })
+        .update(updateData)
         .eq("id", taskId);
 
       if (error) throw error;

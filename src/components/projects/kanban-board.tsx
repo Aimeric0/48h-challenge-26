@@ -393,9 +393,20 @@ export function KanbanBoard({
 
   async function persistStatus(taskId: string, newStatus: TaskStatus) {
     const supabase = createClient();
+    const task = tasks.find((t) => t.id === taskId);
+
+    // Auto-assign current user when dropping in "done" without assignee
+    const updateData: Record<string, string> = { status: newStatus };
+    if (newStatus === "done" && task && !task.assignee_id) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        updateData.assignee_id = user.id;
+      }
+    }
+
     const { error } = await supabase
       .from("tasks")
-      .update({ status: newStatus })
+      .update(updateData)
       .eq("id", taskId);
     if (error) {
       console.error("[kanban] Status update failed:", error);

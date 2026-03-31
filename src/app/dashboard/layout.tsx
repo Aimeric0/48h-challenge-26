@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
 import { MobileSidebar } from "@/components/mobile-sidebar";
+import { LevelUpDialog } from "@/components/level-up-dialog";
 import { createClient } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 export default function DashboardLayout({
   children,
@@ -16,27 +18,75 @@ export default function DashboardLayout({
   const [userName, setUserName] = useState<string>();
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
+  const [levelUpLevel, setLevelUpLevel] = useState<number | null>(null);
+  const prevLevelRef = useRef<number>(1);
+  const userIdRef = useRef<string | null>(null);
+
+  const handleXpUpdate = useCallback((newXp: number, newLevel: number) => {
+    setXp((prevXp) => {
+      const diff = newXp - prevXp;
+      if (diff > 0) {
+        toast.success(`+${diff} XP gagné !`, {
+          icon: "⭐",
+          duration: 3000,
+        });
+      }
+      return newXp;
+    });
+    setLevel(newLevel);
+    if (newLevel > prevLevelRef.current) {
+      setLevelUpLevel(newLevel);
+    }
+    prevLevelRef.current = newLevel;
+  }, []);
 
   useEffect(() => {
     const supabase = createClient();
 
     async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("full_name, xp, level")
-          .eq("id", user.id)
-          .single();
+      if (!user) return;
 
-        setUserName(profile?.full_name || user.email || "");
-        setXp(profile?.xp ?? 0);
-        setLevel(profile?.level ?? 1);
-      }
+      userIdRef.current = user.id;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, xp, level")
+        .eq("id", user.id)
+        .single();
+
+      setUserName(profile?.full_name || user.email || "");
+      const profileXp = profile?.xp ?? 0;
+      const profileLevel = profile?.level ?? 1;
+      setXp(profileXp);
+      setLevel(profileLevel);
+      prevLevelRef.current = profileLevel;
+
+      // Subscribe to realtime XP/level changes
+      const channel = supabase
+        .channel("profile-xp")
+        .on(
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "profiles",
+            filter: `id=eq.${user.id}`,
+          },
+          (payload) => {
+            const newData = payload.new as { xp: number; level: number };
+            handleXpUpdate(newData.xp, newData.level);
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
 
     loadProfile();
-  }, []);
+  }, [handleXpUpdate]);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -63,6 +113,13 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
+
+      {/* Level up dialog */}
+      <LevelUpDialog
+        open={levelUpLevel !== null}
+        onClose={() => setLevelUpLevel(null)}
+        newLevel={levelUpLevel ?? 1}
+      />
     </div>
   );
 }
