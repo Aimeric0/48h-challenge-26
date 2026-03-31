@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -70,6 +70,14 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
   const [status, setStatus] = useState<ProjectStatus>(initialProject.status);
   const [members, setMembers] = useState(initialProject.members);
   const [tasks, setTasks] = useState(initialProject.tasks);
+
+  const handleStatusChanged = useCallback((newStatus: ProjectStatus) => {
+    setStatus(newStatus);
+  }, []);
+
+  const handleTasksChange = useCallback((newTasks: typeof tasks) => {
+    setTasks(newTasks);
+  }, []);
 
   const doneCount = tasks.filter((t) => t.status === "done").length;
   const now = new Date().toISOString();
@@ -173,7 +181,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
               <ProjectStatusSelect
                 projectId={initialProject.id}
                 currentStatus={status}
-                onStatusChanged={setStatus}
+                onStatusChanged={handleStatusChanged}
               />
             </div>
           </div>
@@ -288,7 +296,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
 
       <KanbanBoard
         tasks={tasks}
-        onTasksChange={setTasks}
+        onTasksChange={handleTasksChange}
         onDeleteTask={handleDeleteTask}
       />
 
