@@ -14,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { KanbanBoard } from "@/components/projects/kanban-board";
+import { TeamLeaderboard } from "@/components/projects/team-leaderboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -291,9 +292,12 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
         onDeleteTask={handleDeleteTask}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Leaderboard */}
+        <TeamLeaderboard members={members} />
+
         {/* Members */}
-        <div className="lg:col-start-3">
+        <div>
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
