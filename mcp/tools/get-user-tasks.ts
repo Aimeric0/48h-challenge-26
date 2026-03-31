@@ -4,7 +4,7 @@ import { getSupabase } from "../lib/supabase.js";
 export const getUserTasksSchema = z.object({
   user_id: z.string().describe("ID of the user"),
   status: z
-    .enum(["todo", "in_progress", "done"])
+    .enum(["backlog", "todo", "in_progress", "review", "done"])
     .optional()
     .describe("Filter by task status"),
 });

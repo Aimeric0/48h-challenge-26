@@ -17,7 +17,9 @@ import { getUserTasks, getUserTasksSchema } from "./tools/get-user-tasks.js";
 import { getProjectStats, getProjectStatsSchema } from "./tools/get-project-stats.js";
 import { getUserByEmail, getUserByEmailSchema } from "./tools/get-user-by-email.js";
 import { getCurrentUser, getCurrentUserSchema } from "./tools/get-current-user.js";
+import { updateProfile, updateProfileSchema } from "./tools/update-profile.js";
 import { getProjectResource } from "./resources/project-resource.js";
+import { getUserProjectsResource } from "./resources/user-projects-resource.js";
 import { buildStandupPrompt } from "./prompts/standup.js";
 import { buildRetrospectivePrompt } from "./prompts/retrospective.js";
 import { buildTaskBreakdownPrompt } from "./prompts/task-breakdown.js";
@@ -179,6 +181,16 @@ server.tool(
   }
 );
 
+server.tool(
+  "update_profile",
+  "Update a user's profile (first name and/or last name)",
+  updateProfileSchema.shape,
+  async (input) => {
+    const result = await updateProfile(input as z.infer<typeof updateProfileSchema>);
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+);
+
 // --- Resources ---
 
 server.resource(
@@ -189,6 +201,18 @@ server.resource(
     if (!match) throw new Error(`Invalid project URI: ${uri.href}`);
     const projectId = match[1];
     const text = await getProjectResource(projectId);
+    return { contents: [{ uri: uri.href, text, mimeType: "application/json" }] };
+  }
+);
+
+server.resource(
+  "user-projects",
+  "projects://{userId}",
+  async (uri) => {
+    const match = uri.href.match(/^projects:\/\/(.+)$/);
+    if (!match) throw new Error(`Invalid projects URI: ${uri.href}`);
+    const userId = match[1];
+    const text = await getUserProjectsResource(userId);
     return { contents: [{ uri: uri.href, text, mimeType: "application/json" }] };
   }
 );

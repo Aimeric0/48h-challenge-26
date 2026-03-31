@@ -10,7 +10,7 @@ export interface Profile {
 }
 
 export type ProjectStatus = 'planned' | 'in_progress' | 'completed';
-export type TaskStatus = 'todo' | 'in_progress' | 'done';
+export type TaskStatus = 'backlog' | 'todo' | 'in_progress' | 'review' | 'done';
 export type ProjectRole = 'owner' | 'member';
 
 export interface Project {

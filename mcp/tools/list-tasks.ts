@@ -3,7 +3,7 @@ import { getSupabase } from "../lib/supabase.js";
 
 export const listTasksSchema = z.object({
   project_id: z.string().describe("ID of the project to list tasks for"),
-  status: z.enum(["todo", "in_progress", "done"]).optional().describe("Filter by task status"),
+  status: z.enum(["backlog", "todo", "in_progress", "review", "done"]).optional().describe("Filter by task status"),
 });
 
 export async function listTasks(input: z.infer<typeof listTasksSchema>) {

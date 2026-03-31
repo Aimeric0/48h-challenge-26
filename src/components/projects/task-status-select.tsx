@@ -12,8 +12,10 @@ import { createClient } from "@/lib/supabase/client";
 import type { TaskStatus } from "@/types/database";
 
 const STATUS_OPTIONS: { value: TaskStatus; label: string }[] = [
+  { value: "backlog", label: "Backlog" },
   { value: "todo", label: "A faire" },
   { value: "in_progress", label: "En cours" },
+  { value: "review", label: "En revue" },
   { value: "done", label: "Terminé" },
 ];
 

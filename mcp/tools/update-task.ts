@@ -5,7 +5,7 @@ export const updateTaskSchema = z.object({
   task_id: z.string().describe("ID of the task to update"),
   title: z.string().optional().describe("New title for the task"),
   description: z.string().optional().describe("New description for the task"),
-  status: z.enum(["todo", "in_progress", "done"]).optional().describe("New status for the task"),
+  status: z.enum(["backlog", "todo", "in_progress", "review", "done"]).optional().describe("New status for the task"),
   assignee_id: z.string().nullable().optional().describe("User ID to assign the task to, or null to unassign"),
   deadline: z.string().nullable().optional().describe("New deadline in ISO 8601 format, or null to remove"),
 });
