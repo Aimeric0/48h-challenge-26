@@ -18,6 +18,7 @@ import { getProjectStats, getProjectStatsSchema } from "./tools/get-project-stat
 import { getUserByEmail, getUserByEmailSchema } from "./tools/get-user-by-email.js";
 import { getCurrentUser, getCurrentUserSchema } from "./tools/get-current-user.js";
 import { updateProfile, updateProfileSchema } from "./tools/update-profile.js";
+import { listTools, listToolsSchema } from "./tools/list-tools.js";
 import { getProjectResource } from "./resources/project-resource.js";
 import { getUserProjectsResource } from "./resources/user-projects-resource.js";
 import { buildStandupPrompt } from "./prompts/standup.js";
@@ -30,6 +31,16 @@ const server = new McpServer({
 });
 
 // --- Tools ---
+
+server.tool(
+  "list_tools",
+  "List all available tools and their descriptions",
+  listToolsSchema.shape,
+  async () => {
+    const result = await listTools();
+    return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  }
+);
 
 server.tool(
   "list_projects",
