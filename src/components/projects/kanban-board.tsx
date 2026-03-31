@@ -35,7 +35,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import type { Task, TaskStatus, Profile } from "@/types/database";
@@ -430,7 +430,7 @@ export function KanbanBoard({
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 min-w-[800px] pb-2">
+        <div className="flex gap-4 min-w-max pb-4">
           {COLUMNS.map((column) => (
             <KanbanColumn
               key={column.id}
@@ -452,6 +452,7 @@ export function KanbanBoard({
           ) : null}
         </DragOverlay>
       </DndContext>
+      <ScrollBar orientation="horizontal" />
     </ScrollArea>
   );
 }
