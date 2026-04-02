@@ -7,6 +7,7 @@ import { MobileSidebar } from "@/components/mobile-sidebar";
 import { LevelUpDialog } from "@/components/level-up-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
+import { BADGES } from "@/lib/badges";
 
 export default function DashboardLayout({
   children,
@@ -43,6 +44,8 @@ export default function DashboardLayout({
 
   useEffect(() => {
     const supabase = createClient();
+
+    let cleanup: (() => void) | undefined;
 
     async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -95,35 +98,26 @@ export default function DashboardLayout({
           },
           (payload) => {
             const { badge_id } = payload.new as { badge_id: string };
-            const BADGE_NAMES: Record<string, string> = {
-              first_task: "Premier pas",
-              ten_tasks: "Productif",
-              fifty_tasks: "Machine",
-              first_project: "Chef de projet",
-              three_projects_created: "Organisateur",
-              first_invite: "Collaborateur",
-              five_invites: "Recruteur",
-              level_5: "Confirmé",
-              level_10: "Vétéran",
-              xp_500: "Marathonien",
-              streak_3: "Régulier",
-              streak_7: "Assidu",
-            };
+            const badgeDef = BADGES.find((b) => b.id === badge_id);
             toast.success(
-              `Badge débloqué : ${BADGE_NAMES[badge_id] || badge_id} !`,
+              `Badge débloqué : ${badgeDef?.name || badge_id} !`,
               { icon: "🏆", duration: 5000 }
             );
           }
         )
         .subscribe();
 
-      return () => {
+      cleanup = () => {
         supabase.removeChannel(xpChannel);
         supabase.removeChannel(badgeChannel);
       };
     }
 
     loadProfile();
+
+    return () => {
+      cleanup?.();
+    };
   }, [handleXpUpdate]);
 
   return (

@@ -18,61 +18,79 @@ export default async function DashboardPage() {
     .eq("id", userId)
     .single();
 
-  // Fetch all stats in parallel
-  const [
-    { count: tasksCompleted },
-    { count: projectsCompleted },
-    { count: projectsCreated },
-    { count: membersInvited },
-    { count: tasksAssigned },
-    { data: streakData },
-    { data: userBadges },
-  ] = await Promise.all([
-    supabase
-      .from("tasks")
-      .select("*", { count: "exact", head: true })
-      .eq("assignee_id", userId)
-      .eq("status", "done"),
-    supabase
-      .from("projects")
-      .select("*, project_members!inner(user_id)", { count: "exact", head: true })
-      .eq("status", "completed")
-      .eq("project_members.user_id", userId!),
-    supabase
-      .from("projects")
-      .select("*", { count: "exact", head: true })
-      .eq("owner_id", userId),
-    supabase
-      .from("project_members")
-      .select("*", { count: "exact", head: true })
-      .eq("role", "member")
-      .in("project_id",
-        (await supabase.from("projects").select("id").eq("owner_id", userId!))
-          .data?.map((p) => p.id) || []
-      ),
-    supabase
-      .from("tasks")
-      .select("*", { count: "exact", head: true })
-      .eq("assignee_id", userId),
-    supabase.rpc("get_user_streak", { p_user_id: userId }),
-    supabase.rpc("sync_user_badges", { p_user_id: userId }),
-  ]);
+  // Fetch all stats in parallel with fallback defaults
+  let tasksCompleted = 0;
+  let projectsCompleted = 0;
+  let projectsCreated = 0;
+  let membersInvited = 0;
+  let tasksAssigned = 0;
+  let streak = 0;
+  let badgeUnlockDates: Record<string, string> = {};
+  let activityRaw: { activity_date: string }[] = [];
 
-  const streak = streakData ?? 0;
+  try {
+    const [
+      tasksRes,
+      projectsRes,
+      createdRes,
+      invitedRes,
+      assignedRes,
+      streakRes,
+      badgesRes,
+    ] = await Promise.all([
+      supabase
+        .from("tasks")
+        .select("*", { count: "exact", head: true })
+        .eq("assignee_id", userId)
+        .eq("status", "done"),
+      supabase
+        .from("projects")
+        .select("*, project_members!inner(user_id)", { count: "exact", head: true })
+        .eq("status", "completed")
+        .eq("project_members.user_id", userId!),
+      supabase
+        .from("projects")
+        .select("*", { count: "exact", head: true })
+        .eq("owner_id", userId),
+      supabase
+        .from("project_members")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "member")
+        .in("project_id",
+          (await supabase.from("projects").select("id").eq("owner_id", userId!))
+            .data?.map((p) => p.id) || []
+        ),
+      supabase
+        .from("tasks")
+        .select("*", { count: "exact", head: true })
+        .eq("assignee_id", userId),
+      supabase.rpc("get_user_streak", { p_user_id: userId }),
+      supabase.rpc("sync_user_badges", { p_user_id: userId }),
+    ]);
 
-  const badgeUnlockDates: Record<string, string> = {};
-  for (const b of userBadges || []) {
-    badgeUnlockDates[b.badge_id] = b.unlocked_at;
+    tasksCompleted = tasksRes.count ?? 0;
+    projectsCompleted = projectsRes.count ?? 0;
+    projectsCreated = createdRes.count ?? 0;
+    membersInvited = invitedRes.count ?? 0;
+    tasksAssigned = assignedRes.count ?? 0;
+    streak = streakRes.data ?? 0;
+
+    for (const b of badgesRes.data || []) {
+      badgeUnlockDates[b.badge_id] = b.unlocked_at;
+    }
+
+    // Fetch activity data for heatmap (last 16 weeks)
+    const sixteenWeeksAgo = new Date();
+    sixteenWeeksAgo.setDate(sixteenWeeksAgo.getDate() - 112);
+    const { data } = await supabase
+      .from("activity_log")
+      .select("activity_date")
+      .eq("user_id", userId)
+      .gte("activity_date", sixteenWeeksAgo.toISOString().split("T")[0]);
+    activityRaw = data || [];
+  } catch {
+    // Fallback to defaults on error
   }
-
-  // Fetch activity data for heatmap (last 16 weeks)
-  const sixteenWeeksAgo = new Date();
-  sixteenWeeksAgo.setDate(sixteenWeeksAgo.getDate() - 112);
-  const { data: activityRaw } = await supabase
-    .from("activity_log")
-    .select("activity_date")
-    .eq("user_id", userId)
-    .gte("activity_date", sixteenWeeksAgo.toISOString().split("T")[0]);
 
   const activityMap = new Map<string, number>();
   for (const row of activityRaw || []) {

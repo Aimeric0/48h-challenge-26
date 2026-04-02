@@ -78,7 +78,7 @@ export function BadgesGrid({ stats, unlockDates = {} }: BadgesGridProps) {
                       <span className="text-[11px] font-medium text-center leading-tight">
                         {badge.name}
                       </span>
-                      {!unlocked && badge.target && (
+                      {!unlocked && badge.target && current < badge.target && (
                         <div className="w-full mt-0.5">
                           <div className="h-1 w-full rounded-full bg-muted overflow-hidden">
                             <div
