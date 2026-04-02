@@ -24,7 +24,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Check, Download, Loader2, Palette, Save, Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera, Check, Download, Loader2, Lock, Palette, Save, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { useColorTheme } from "@/components/color-theme-provider";
 import { useTheme } from "next-themes";
@@ -40,6 +41,13 @@ export default function SettingsPage() {
   const [error, setError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const router = useRouter();
   const [supabase] = useState(() => createClient());
   const { colorTheme, setColorTheme } = useColorTheme();
@@ -53,10 +61,11 @@ export default function SettingsPage() {
         setEmail(user.email || "");
         const { data: profile } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, avatar_url")
           .eq("id", user.id)
           .single();
         setFullName(profile?.full_name || "");
+        setAvatarUrl(profile?.avatar_url || null);
       }
     }
     loadProfile();
@@ -97,6 +106,88 @@ export default function SettingsPage() {
 
     setSuccess("Profil mis à jour avec succès.");
     setLoading(false);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !userId) return;
+
+    setAvatarUploading(true);
+    setError("");
+
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const filePath = `${userId}/avatar.${ext}`;
+
+      // Upload file (upsert to replace existing)
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        setError("Erreur lors du téléversement de l'avatar.");
+        setAvatarUploading(false);
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const publicUrl = urlData.publicUrl + "?t=" + Date.now();
+
+      // Update profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", userId);
+
+      if (profileError) {
+        setError("Erreur lors de la mise à jour du profil.");
+        setAvatarUploading(false);
+        return;
+      }
+
+      setAvatarUrl(publicUrl);
+      setSuccess("Avatar mis à jour avec succès.");
+    } catch {
+      setError("Erreur lors du téléversement de l'avatar.");
+    }
+    setAvatarUploading(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (newPassword.length < 6) {
+      setPasswordError("Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      setPasswordError("Erreur lors de la mise à jour du mot de passe.");
+      setPasswordLoading(false);
+      return;
+    }
+
+    setPasswordSuccess("Mot de passe mis à jour avec succès.");
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordLoading(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -163,6 +254,52 @@ export default function SettingsPage() {
                 <AlertDescription>{success}</AlertDescription>
               </Alert>
             )}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={avatarUrl || undefined} alt="Avatar" />
+                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                    {fullName
+                      ? fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)
+                      : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                {avatarUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label>Photo de profil</Label>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG ou GIF. 2 Mo max.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={avatarUploading}
+                  onClick={() => document.getElementById("avatar-input")?.click()}
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Changer la photo
+                </Button>
+                <input
+                  id="avatar-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
+            </div>
+            <Separator />
             <div className="space-y-2">
               <Label htmlFor="fullName">Nom complet</Label>
               <Input
@@ -189,6 +326,62 @@ export default function SettingsPage() {
                 <Save className="mr-2 h-4 w-4" />
               )}
               Enregistrer
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5" />
+            Changer le mot de passe
+          </CardTitle>
+          <CardDescription>
+            Mettez à jour votre mot de passe pour sécuriser votre compte.
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleChangePassword}>
+          <CardContent className="space-y-4">
+            {passwordError && (
+              <Alert variant="destructive">
+                <AlertDescription>{passwordError}</AlertDescription>
+              </Alert>
+            )}
+            {passwordSuccess && (
+              <Alert>
+                <AlertDescription>{passwordSuccess}</AlertDescription>
+              </Alert>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="6 caractères minimum"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirmez votre nouveau mot de passe"
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={passwordLoading}>
+              {passwordLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Lock className="mr-2 h-4 w-4" />
+              )}
+              Mettre à jour le mot de passe
             </Button>
           </CardFooter>
         </form>
@@ -266,7 +459,7 @@ export default function SettingsPage() {
           <CardTitle>Mes données</CardTitle>
           <CardDescription>
             Exportez une copie de toutes vos données personnelles
-            (profil, conversations, messages) au format JSON.
+            (profil, projets, tâches) au format JSON.
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex items-center justify-between">
@@ -313,8 +506,8 @@ export default function SettingsPage() {
               <DialogHeader>
                 <DialogTitle>Confirmer la suppression</DialogTitle>
                 <DialogDescription>
-                  Cette action est irréversible. Toutes vos conversations,
-                  messages et données personnelles seront définitivement
+                  Cette action est irréversible. Tous vos projets,
+                  tâches et données personnelles seront définitivement
                   supprimés.
                 </DialogDescription>
               </DialogHeader>

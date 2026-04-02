@@ -11,32 +11,40 @@ export async function GET() {
 
     const userId = user.id;
 
-    const [{ data: profile }, { data: conversations }] = await Promise.all([
+    const [{ data: profile }, { data: memberships }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", userId).single(),
       supabase
-        .from("conversations")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: true }),
+        .from("project_members")
+        .select("project_id")
+        .eq("user_id", userId),
     ]);
 
-    const conversationIds = (conversations || []).map((c) => c.id);
+    const projectIds = (memberships || []).map((m) => m.project_id);
 
-    const { data: messages } = conversationIds.length > 0
-      ? await supabase
-          .from("messages")
-          .select("*")
-          .in("conversation_id", conversationIds)
-          .order("created_at", { ascending: true })
-      : { data: [] };
+    const [{ data: projects }, { data: tasks }] = await Promise.all([
+      projectIds.length > 0
+        ? supabase
+            .from("projects")
+            .select("*")
+            .in("id", projectIds)
+            .order("created_at", { ascending: true })
+        : { data: [] as Record<string, unknown>[] },
+      projectIds.length > 0
+        ? supabase
+            .from("tasks")
+            .select("*")
+            .in("project_id", projectIds)
+            .order("created_at", { ascending: true })
+        : { data: [] as Record<string, unknown>[] },
+    ]);
 
     const exportData = {
       exported_at: new Date().toISOString(),
       profile,
-      conversations: (conversations || []).map((conv) => ({
-        ...conv,
-        messages: (messages || []).filter(
-          (m) => m.conversation_id === conv.id
+      projects: (projects || []).map((project) => ({
+        ...project,
+        tasks: (tasks || []).filter(
+          (t) => t.project_id === project.id
         ),
       })),
     };

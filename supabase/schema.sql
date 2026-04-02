@@ -158,7 +158,7 @@ create table public.tasks (
   project_id uuid references public.projects on delete cascade not null,
   title text not null,
   description text default '',
-  status text not null default 'todo' check (status in ('todo', 'in_progress', 'done')),
+  status text not null default 'todo' check (status in ('backlog', 'todo', 'in_progress', 'review', 'done')),
   assignee_id uuid references auth.users on delete set null,
   deadline timestamptz,
   position integer not null default 0,

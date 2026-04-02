@@ -11,18 +11,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 interface HeaderProps {
   onMenuClick: () => void;
   userName?: string;
+  avatarUrl?: string | null;
   xp?: number;
   level?: number;
 }
 
-export function Header({ onMenuClick, userName, xp = 0, level = 1 }: HeaderProps) {
+export function Header({ onMenuClick, userName, avatarUrl, xp = 0, level = 1 }: HeaderProps) {
   const router = useRouter();
   const supabase = createClient();
 
@@ -62,6 +63,7 @@ export function Header({ onMenuClick, userName, xp = 0, level = 1 }: HeaderProps
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-9 w-9 rounded-full">
             <Avatar className="h-9 w-9">
+              <AvatarImage src={avatarUrl || undefined} alt={userName || "Avatar"} />
               <AvatarFallback className="bg-primary text-primary-foreground text-sm">
                 {initials}
               </AvatarFallback>

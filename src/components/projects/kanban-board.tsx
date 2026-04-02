@@ -33,7 +33,7 @@ import {
   X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -202,6 +202,7 @@ function TaskCardContent({
           )}
           {task.assignee && (
             <Avatar className="h-5 w-5">
+              <AvatarImage src={task.assignee.avatar_url || undefined} alt={task.assignee.full_name || task.assignee.email} />
               <AvatarFallback className="text-[8px] bg-primary/10 text-primary">
                 {getInitials(
                   task.assignee.full_name || task.assignee.email

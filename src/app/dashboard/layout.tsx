@@ -16,6 +16,7 @@ export default function DashboardLayout({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userName, setUserName] = useState<string>();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [xp, setXp] = useState(0);
   const [level, setLevel] = useState(1);
   const [levelUpLevel, setLevelUpLevel] = useState<number | null>(null);
@@ -51,11 +52,12 @@ export default function DashboardLayout({
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, xp, level")
+        .select("full_name, xp, level, avatar_url")
         .eq("id", user.id)
         .single();
 
       setUserName(profile?.full_name || user.email || "");
+      setAvatarUrl(profile?.avatar_url || null);
       const profileXp = profile?.xp ?? 0;
       const profileLevel = profile?.level ?? 1;
       setXp(profileXp);
@@ -106,6 +108,7 @@ export default function DashboardLayout({
         <Header
           onMenuClick={() => setMobileOpen(true)}
           userName={userName}
+          avatarUrl={avatarUrl}
           xp={xp}
           level={level}
         />

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, Medal, Star } from "lucide-react";
 import { getLevelTitle, getLevelProgress, xpForNextLevel } from "@/lib/gamification";
@@ -66,6 +66,7 @@ export function TeamLeaderboard({ members }: TeamLeaderboardProps) {
 
               {/* Avatar */}
               <Avatar className="h-8 w-8 shrink-0">
+                <AvatarImage src={profile.avatar_url || undefined} alt={profile.full_name || profile.email} />
                 <AvatarFallback className={`text-xs ${
                   index === 0 ? "bg-amber-500/15 text-amber-700 dark:text-amber-400" : "bg-primary/10 text-primary"
                 }`}>
