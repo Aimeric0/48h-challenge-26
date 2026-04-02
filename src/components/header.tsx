@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Menu, LogOut, User, Settings } from "lucide-react";
+import { Menu, LogOut, Settings } from "lucide-react";
 import { XpBar } from "@/components/xp-bar";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,10 +80,6 @@ export function Header({ onMenuClick, userName, avatarUrl, xp = 0, level = 1 }: 
           <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
             <Settings className="mr-2 h-4 w-4" />
             Paramètres
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
-            <User className="mr-2 h-4 w-4" />
-            Profil
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleSignOut}>

@@ -31,6 +31,16 @@ export default async function DashboardPage() {
     .eq("status", "completed")
     .eq("project_members.user_id", userId!);
 
+  // Sync and fetch persisted badges
+  const { data: userBadges } = await supabase.rpc("sync_user_badges", {
+    p_user_id: userId,
+  });
+
+  const badgeUnlockDates: Record<string, string> = {};
+  for (const b of userBadges || []) {
+    badgeUnlockDates[b.badge_id] = b.unlocked_at;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -56,6 +66,7 @@ export default async function DashboardPage() {
           projectsCompleted: projectsCompleted ?? 0,
           level: profile?.level ?? 1,
         }}
+        unlockDates={badgeUnlockDates}
       />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -20,9 +20,10 @@ const ICON_MAP: Record<string, React.ElementType> = {
 
 interface BadgesGridProps {
   stats: UserStats;
+  unlockDates?: Record<string, string>;
 }
 
-export function BadgesGrid({ stats }: BadgesGridProps) {
+export function BadgesGrid({ stats, unlockDates = {} }: BadgesGridProps) {
   const unlockedIds = new Set(
     BADGES.filter((b) => b.check(stats)).map((b) => b.id)
   );
@@ -70,9 +71,18 @@ export function BadgesGrid({ stats }: BadgesGridProps) {
                     <p className="text-xs text-muted-foreground">
                       {badge.description}
                     </p>
-                    {!unlocked && (
+                    {unlocked && unlockDates[badge.id] ? (
+                      <p className="text-xs text-emerald-500 mt-0.5">
+                        Débloqué le{" "}
+                        {new Date(unlockDates[badge.id]).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    ) : !unlocked ? (
                       <p className="text-xs text-amber-500 mt-0.5">Non débloqué</p>
-                    )}
+                    ) : null}
                   </TooltipContent>
                 </Tooltip>
               );
