@@ -65,7 +65,7 @@ export default function DashboardLayout({
       prevLevelRef.current = profileLevel;
 
       // Subscribe to realtime XP/level changes
-      const channel = supabase
+      const xpChannel = supabase
         .channel("profile-xp")
         .on(
           "postgres_changes",
@@ -82,8 +82,44 @@ export default function DashboardLayout({
         )
         .subscribe();
 
+      // Subscribe to new badge unlocks
+      const badgeChannel = supabase
+        .channel("badge-unlocks")
+        .on(
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "user_badges",
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            const { badge_id } = payload.new as { badge_id: string };
+            const BADGE_NAMES: Record<string, string> = {
+              first_task: "Premier pas",
+              ten_tasks: "Productif",
+              fifty_tasks: "Machine",
+              first_project: "Chef de projet",
+              three_projects_created: "Organisateur",
+              first_invite: "Collaborateur",
+              five_invites: "Recruteur",
+              level_5: "Confirmé",
+              level_10: "Vétéran",
+              xp_500: "Marathonien",
+              streak_3: "Régulier",
+              streak_7: "Assidu",
+            };
+            toast.success(
+              `Badge débloqué : ${BADGE_NAMES[badge_id] || badge_id} !`,
+              { icon: "🏆", duration: 5000 }
+            );
+          }
+        )
+        .subscribe();
+
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(xpChannel);
+        supabase.removeChannel(badgeChannel);
       };
     }
 
