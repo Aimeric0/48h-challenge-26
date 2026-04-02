@@ -8,14 +8,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Rocket, Zap, FolderCheck, Shield, Crown, Award } from "lucide-react";
+import {
+  Rocket, Zap, FolderCheck, Shield, Crown, Award, Cpu,
+  Briefcase, Handshake, UsersRound, Flame, CalendarCheck, CalendarHeart,
+} from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   rocket: Rocket,
   zap: Zap,
+  cpu: Cpu,
   "folder-check": FolderCheck,
+  briefcase: Briefcase,
+  handshake: Handshake,
+  "users-round": UsersRound,
   shield: Shield,
   crown: Crown,
+  flame: Flame,
+  "calendar-check": CalendarCheck,
+  "calendar-heart": CalendarHeart,
 };
 
 interface BadgesGridProps {
