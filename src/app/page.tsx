@@ -19,7 +19,7 @@ const features = [
     icon: KanbanSquare,
     title: "Tableau Kanban",
     description:
-      "Visualisez vos taches en colonnes drag & drop. Passez de To Do a Done en un glissement.",
+      "Visualisez vos tâches en colonnes drag & drop. Passez de To Do à Done en un glissement.",
     color: "text-violet-500",
     bg: "bg-violet-500/10",
   },
@@ -27,7 +27,7 @@ const features = [
     icon: Trophy,
     title: "Gamification & XP",
     description:
-      "Gagnez de l'XP, montez de niveau et debloquez des badges en completant vos taches.",
+      "Gagnez de l'XP, montez de niveau et débloquez des badges en complétant vos tâches.",
     color: "text-amber-500",
     bg: "bg-amber-500/10",
   },
@@ -35,7 +35,7 @@ const features = [
     icon: Users,
     title: "Collaboration",
     description:
-      "Invitez vos coequipiers, assignez les taches et suivez la progression de l'equipe en temps reel.",
+      "Invitez vos coéquipiers, assignez les tâches et suivez la progression de l'équipe en temps réel.",
     color: "text-pink-500",
     bg: "bg-pink-500/10",
   },
@@ -43,7 +43,7 @@ const features = [
     icon: Bot,
     title: "Assistant IA (MCP)",
     description:
-      "Pilotez vos projets en langage naturel grace a l'assistant connecte via le protocole MCP.",
+      "Pilotez vos projets en langage naturel grâce à l'assistant connecté via le protocole MCP.",
     color: "text-violet-500",
     bg: "bg-violet-500/10",
   },
@@ -51,8 +51,8 @@ const features = [
 
 const highlights = [
   "Dashboard avec progression globale",
-  "Deadlines et taches en retard",
-  "Activite recente de l'equipe",
+  "Deadlines et tâches en retard",
+  "Activité récente de l'équipe",
   "Statistiques par projet",
 ];
 
@@ -86,7 +86,7 @@ export default async function Home() {
                   <Link href="/login">Se connecter</Link>
                 </Button>
                 <Button asChild>
-                  <Link href="/register">Creer un compte</Link>
+                  <Link href="/register">Créer un compte</Link>
                 </Button>
               </>
             )}
@@ -104,20 +104,20 @@ export default async function Home() {
         <div className="mx-auto max-w-4xl px-4 py-24 text-center sm:py-32">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-background px-4 py-1.5 text-sm text-muted-foreground shadow-sm">
             <Zap className="h-3.5 w-3.5 text-amber-500" />
-            Pensee par et pour les etudiants en info
+            Pensée par et pour les étudiants en info
           </div>
 
           <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-            Gerez vos projets.{" "}
+            Gérez vos projets.{" "}
             <span className="bg-gradient-to-r from-violet-500 via-pink-500 to-amber-500 bg-clip-text text-transparent">
               Montez en niveau.
             </span>
           </h1>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-            La gestion de projet tellement fluide et integree dans votre
+            La gestion de projet tellement fluide et intégrée dans votre
             workflow que vous la maintenez naturellement, sans effort
-            supplementaire. Kanban, XP, badges et assistant IA reunis en une
+            supplémentaire. Kanban, XP, badges et assistant IA réunis en une
             seule app.
           </p>
 
@@ -150,11 +150,11 @@ export default async function Home() {
       <section className="border-t bg-muted/30 py-20">
         <div className="mx-auto max-w-6xl px-4">
           <h2 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-            Tout ce qu&apos;il faut pour reussir vos projets
+            Tout ce qu&apos;il faut pour réussir vos projets
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-            Un outil complet concu pour le workflow des etudiants, de
-            l&apos;idee a la livraison.
+            Un outil complet conçu pour le workflow des étudiants, de
+            l&apos;idée à la livraison.
           </p>
 
           <div className="mt-14 grid gap-8 sm:grid-cols-2">
@@ -204,7 +204,7 @@ export default async function Home() {
             <div className="w-full max-w-md flex-1">
               <div className="rounded-xl border bg-card p-6 shadow-lg">
                 <div className="mb-4 flex items-center justify-between">
-                  <span className="font-semibold">Progression equipe</span>
+                  <span className="font-semibold">Progression équipe</span>
                   <span className="text-sm text-muted-foreground">
                     Cette semaine
                   </span>
@@ -241,11 +241,11 @@ export default async function Home() {
       <section className="border-t bg-gradient-to-r from-violet-500 to-pink-500 py-16 text-white">
         <div className="mx-auto max-w-4xl px-4 text-center">
           <h2 className="text-3xl font-bold sm:text-4xl">
-            Pret a booster vos projets ?
+            Prêt à booster vos projets ?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
-            Rejoignez la plateforme et transformez la facon dont votre equipe
-            gere ses projets.
+            Rejoignez la plateforme et transformez la façon dont votre équipe
+            gère ses projets.
           </p>
           <div className="mt-8">
             {user ? (
@@ -268,7 +268,7 @@ export default async function Home() {
                 className="text-base"
               >
                 <Link href="/register">
-                  Creer un compte gratuitement
+                  Créer un compte gratuitement
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
@@ -289,13 +289,13 @@ export default async function Home() {
               href="/privacy"
               className="transition-colors hover:text-foreground"
             >
-              Politique de confidentialite
+              Politique de confidentialité
             </Link>
             <Link
               href="/mentions-legales"
               className="transition-colors hover:text-foreground"
             >
-              Mentions legales
+              Mentions légales
             </Link>
           </div>
         </div>

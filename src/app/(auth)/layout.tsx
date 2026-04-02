@@ -15,11 +15,11 @@ export default function AuthLayout({
         {children}
         <div className="flex justify-center gap-4 text-xs text-muted-foreground">
           <a href="/privacy" className="hover:underline underline-offset-4">
-            Confidentialite
+            Confidentialité
           </a>
           <span>&middot;</span>
           <a href="/mentions-legales" className="hover:underline underline-offset-4">
-            Mentions legales
+            Mentions légales
           </a>
         </div>
       </div>
