@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, CheckCircle2, FolderCheck, Flame, CalendarCheck } from "lucide-react";
-import Link from "next/link";
+import { CheckCircle2, FolderCheck, Flame, CalendarCheck } from "lucide-react";
 import { XpBar } from "@/components/xp-bar";
 import { BadgesGrid } from "@/components/badges-grid";
+import { ActivityHeatmap } from "@/components/activity-heatmap";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +64,25 @@ export default async function DashboardPage() {
   for (const b of userBadges || []) {
     badgeUnlockDates[b.badge_id] = b.unlocked_at;
   }
+
+  // Fetch activity data for heatmap (last 16 weeks)
+  const sixteenWeeksAgo = new Date();
+  sixteenWeeksAgo.setDate(sixteenWeeksAgo.getDate() - 112);
+  const { data: activityRaw } = await supabase
+    .from("activity_log")
+    .select("activity_date")
+    .eq("user_id", userId)
+    .gte("activity_date", sixteenWeeksAgo.toISOString().split("T")[0]);
+
+  const activityMap = new Map<string, number>();
+  for (const row of activityRaw || []) {
+    const date = row.activity_date;
+    activityMap.set(date, (activityMap.get(date) ?? 0) + 1);
+  }
+  const activityData = Array.from(activityMap.entries()).map(([date, count]) => ({
+    date,
+    count,
+  }));
 
   return (
     <div className="space-y-6">
@@ -147,6 +166,9 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Activity Heatmap */}
+      <ActivityHeatmap data={activityData} />
     </div>
   );
 }
