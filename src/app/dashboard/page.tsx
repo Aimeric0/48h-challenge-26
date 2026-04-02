@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, CheckCircle2, FolderCheck, Flame } from "lucide-react";
+import { Settings, CheckCircle2, FolderCheck, Flame, CalendarCheck } from "lucide-react";
 import Link from "next/link";
 import { XpBar } from "@/components/xp-bar";
 import { BadgesGrid } from "@/components/badges-grid";
@@ -132,19 +132,20 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Link href="/dashboard/settings">
-          <Card className="shadow-none transition-colors hover:bg-accent/50 cursor-pointer h-full">
-            <CardContent className="py-4 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Paramètres</span>
-                <Settings className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <p className="text-sm text-muted-foreground mt-3">
-                Gérer votre compte
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
+        <Card className="shadow-none">
+          <CardContent className="py-4 px-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Streak</span>
+              <CalendarCheck className="h-4 w-4 text-orange-500" />
+            </div>
+            <p className="text-2xl font-bold mt-1">
+              {streak} jour{streak !== 1 ? "s" : ""}
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {streak >= 7 ? "Incroyable !" : streak >= 3 ? "Continuez !" : "Restez actif !"}
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
