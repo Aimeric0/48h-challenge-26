@@ -65,7 +65,7 @@ Le serveur expose **15 tools**, **1 resource** et **3 prompts** pour permettre a
 | Prompt | `retrospective` | Template de retrospective sprint |
 | Prompt | `task_breakdown` | Decomposition d'un objectif en sous-taches |
 
-> Documentation complete des outils MCP : [`doc/MCP_TOOLS.md`](doc/MCP_TOOLS.md)
+> Documentation complete des outils MCP : [`docs/doc/MCP_TOOLS.md`](docs/doc/MCP_TOOLS.md)
 
 ## Prerequisites
 
@@ -171,16 +171,25 @@ mcp/                    # Serveur MCP standalone (stdio)
 ├── prompts/            # Prompts (standup, retrospective, task_breakdown)
 ├── lib/                # Client Supabase pour le serveur MCP
 └── server.ts           # Point d'entree du serveur
-doc/
-├── MCP_TOOLS.md        # Documentation detaillee des outils MCP
-└── MCP_Info.md         # Informations sur le protocole MCP
+docs/
+├── doc/                # Documentation MCP
+├── features/           # Historique des versions
+├── audit/              # Audits
+├── perf/               # Performances
+├── rgpd/               # Conformite RGPD
+└── powerpoint/         # Presentations
 src/
 ├── app/
 │   ├── (auth)/         # Pages auth (login, register, forgot-password)
 │   ├── (legal)/        # Pages legales (CGU, confidentialite)
 │   ├── api/            # Route handlers (account delete/export)
 │   └── dashboard/      # Pages protegees (projets, kanban, settings)
-├── components/         # Composants reutilisables (shadcn/ui)
+├── components/
+│   ├── ui/             # Primitives shadcn/ui
+│   ├── projects/       # Composants projet (kanban, cards, dialogs)
+│   ├── gamification/   # XP bar, badges, leaderboard, heatmap
+│   ├── layout/         # Header, sidebar, mobile sidebar
+│   └── providers/      # Theme, cookie consent
 ├── lib/
 │   ├── supabase/       # Client Supabase (auth, projets, taches)
 │   └── gamification.ts # Calculs XP et niveaux

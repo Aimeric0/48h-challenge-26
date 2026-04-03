@@ -1,9 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle2, FolderCheck, Flame, CalendarCheck } from "lucide-react";
-import { XpBar } from "@/components/xp-bar";
-import { BadgesGrid } from "@/components/badges-grid";
-import { ActivityHeatmap } from "@/components/activity-heatmap";
+import { XpBar } from "@/components/gamification/xp-bar";
+import { BadgesGrid } from "@/components/gamification/badges-grid";
+import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
 
 export const dynamic = "force-dynamic";
 

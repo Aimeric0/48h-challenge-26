@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Sidebar } from "@/components/sidebar";
-import { Header } from "@/components/header";
-import { MobileSidebar } from "@/components/mobile-sidebar";
-import { LevelUpDialog } from "@/components/level-up-dialog";
+import { Sidebar } from "@/components/layout/sidebar";
+import { Header } from "@/components/layout/header";
+import { MobileSidebar } from "@/components/layout/mobile-sidebar";
+import { LevelUpDialog } from "@/components/gamification/level-up-dialog";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
 import { BADGES } from "@/lib/badges";

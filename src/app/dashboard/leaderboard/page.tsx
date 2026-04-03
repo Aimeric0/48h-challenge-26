@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { GlobalLeaderboard } from "@/components/global-leaderboard";
+import { GlobalLeaderboard } from "@/components/gamification/global-leaderboard";
 
 export const dynamic = "force-dynamic";
 

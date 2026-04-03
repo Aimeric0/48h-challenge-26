@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Menu, LogOut, Settings } from "lucide-react";
-import { XpBar } from "@/components/xp-bar";
+import { XpBar } from "@/components/gamification/xp-bar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,

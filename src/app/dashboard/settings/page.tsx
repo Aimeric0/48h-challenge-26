@@ -27,7 +27,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Check, Download, Loader2, Lock, Palette, Save, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { useColorTheme } from "@/components/color-theme-provider";
+import { useColorTheme } from "@/components/providers/color-theme-provider";
 import { useTheme } from "next-themes";
 import { COLOR_THEMES } from "@/lib/themes";
 
@@ -421,9 +421,9 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-3">
-            <Label>Couleur d&apos;accent</Label>
+            <Label>Thèmes</Label>
             <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
-              {COLOR_THEMES.map((t) => (
+              {COLOR_THEMES.filter((t) => t.category === "basic").map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setColorTheme(t.id)}
@@ -447,6 +447,46 @@ export default function SettingsPage() {
                     }}
                   />
                   <span className="text-xs font-medium">{t.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <Label>Thèmes avancés</Label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {COLOR_THEMES.filter((t) => t.category === "advanced").map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setColorTheme(t.id)}
+                  className={`flex items-center gap-4 rounded-lg border-2 p-4 text-left transition-colors hover:bg-accent/50 ${
+                    colorTheme === t.id
+                      ? "border-primary bg-accent/30"
+                      : "border-transparent"
+                  }`}
+                >
+                  <div className="flex -space-x-1.5">
+                    {"palette" in t && (t as { palette: readonly string[] }).palette.map((c, i) => (
+                      <div
+                        key={i}
+                        className="h-8 w-8 rounded-full border-2 border-background"
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium">{t.name}</span>
+                    {"description" in t && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {(t as { description: string }).description}
+                      </p>
+                    )}
+                  </div>
+                  {colorTheme === t.id && (
+                    <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
+                  )}
                 </button>
               ))}
             </div>

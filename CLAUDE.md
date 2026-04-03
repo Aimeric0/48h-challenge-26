@@ -123,5 +123,5 @@ Format :
 
 - Composants : Un composant = un fichier
 - Lib : Logique isolée dans /lib/supabase/, /lib/ai/, /lib/mcp/
-- Docs : Consulter FEATURES/ (état des versions) et RGPD/ (conformité) avant toute modification majeure
+- Docs : Consulter docs/features/ (état des versions) et docs/rgpd/ (conformité) avant toute modification majeure
 - RGPD : Consentement cookies obligatoire, bouton suppression de compte, données stockées en EU
