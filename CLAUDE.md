@@ -3,7 +3,7 @@
 ## TaskFlow — Gestion de Projet Gamifiée × MCP
 
 ### Objectif
-Application web de gestion de projet pensée par et pour les étudiants en informatique, couplée à un serveur MCP (Model Context Protocol) permettant à un assistant de piloter l'app en langage naturel via Mistral.
+Application web de gestion de projet pensée par et pour les étudiants en informatique, couplée à un serveur MCP (Model Context Protocol) permettant à un assistant de piloter l'app en langage naturel via Claude Desktop.
 
 Vision : rendre la gestion de projet tellement fluide et intégrée dans le workflow quotidien que les étudiants la maintiennent naturellement, sans effort supplémentaire.
 
@@ -16,7 +16,7 @@ Origine : projet né lors du Challenge 48h (30-31 mars 2026), désormais en dév
 - TypeScript strict  
 - Tailwind CSS + shadcn/ui pour tout composant UI  
 - Supabase (auth, BDD, storage, RLS, Realtime)  
-- Mistral pour l'assistant conversationnel (client MCP)  
+- Claude Desktop comme client MCP  
 - @modelcontextprotocol/sdk pour le serveur MCP  
 
 ---

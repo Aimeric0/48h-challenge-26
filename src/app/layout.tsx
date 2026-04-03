@@ -9,8 +9,8 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "Challenge 48h",
-  description: "Plateforme de chat intelligent",
+  title: "TaskFlow",
+  description: "Plateforme de gestion de projet gamifiée",
 };
 
 export default function RootLayout({
