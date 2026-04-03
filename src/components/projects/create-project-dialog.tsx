@@ -43,7 +43,6 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
         return;
       }
 
-      console.log("[create-project] Inserting project...");
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert({
@@ -60,8 +59,6 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
         console.error("[create-project] Project insert failed:", projectError);
         throw projectError;
       }
-      console.log("[create-project] Project created:", project.id);
-
       const { error: memberError } = await supabase
         .from("project_members")
         .insert({
@@ -74,8 +71,6 @@ export function CreateProjectDialog({ onCreated }: CreateProjectDialogProps) {
         console.error("[create-project] Member insert failed:", memberError);
         throw memberError;
       }
-      console.log("[create-project] Owner member added");
-
       // Fetch the user's profile for the member list
       const { data: profile } = await supabase
         .from("profiles")

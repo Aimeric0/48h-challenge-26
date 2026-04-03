@@ -12,7 +12,7 @@ export async function GET() {
     const userId = user.id;
 
     const [{ data: profile }, { data: memberships }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", userId).single(),
+      supabase.from("profiles").select("id, full_name, email, avatar_url, xp, level, created_at, updated_at").eq("id", userId).single(),
       supabase
         .from("project_members")
         .select("project_id")
@@ -25,27 +25,35 @@ export async function GET() {
       projectIds.length > 0
         ? supabase
             .from("projects")
-            .select("*")
+            .select("id, name, description, status, deadline, owner_id, created_at, updated_at")
             .in("id", projectIds)
             .order("created_at", { ascending: true })
+            .limit(500)
         : { data: [] as Record<string, unknown>[] },
       projectIds.length > 0
         ? supabase
             .from("tasks")
-            .select("*")
+            .select("id, project_id, title, description, status, assignee_id, deadline, position, created_at, updated_at")
             .in("project_id", projectIds)
             .order("created_at", { ascending: true })
+            .limit(5000)
         : { data: [] as Record<string, unknown>[] },
     ]);
+
+    // Group tasks by project_id in O(n) instead of O(n*m) filter
+    const tasksByProject = new Map<string, Record<string, unknown>[]>();
+    for (const task of tasks || []) {
+      const pid = task.project_id as string;
+      if (!tasksByProject.has(pid)) tasksByProject.set(pid, []);
+      tasksByProject.get(pid)!.push(task);
+    }
 
     const exportData = {
       exported_at: new Date().toISOString(),
       profile,
       projects: (projects || []).map((project) => ({
         ...project,
-        tasks: (tasks || []).filter(
-          (t) => t.project_id === project.id
-        ),
+        tasks: tasksByProject.get(project.id as string) || [],
       })),
     };
 

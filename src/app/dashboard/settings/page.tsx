@@ -34,6 +34,7 @@ import { COLOR_THEMES } from "@/lib/themes";
 export default function SettingsPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
@@ -59,6 +60,7 @@ export default function SettingsPage() {
       if (user) {
         setUserId(user.id);
         setEmail(user.email || "");
+        setOriginalEmail(user.email || "");
         const { data: profile } = await supabase
           .from("profiles")
           .select("full_name, avatar_url")
@@ -91,9 +93,8 @@ export default function SettingsPage() {
       return;
     }
 
-    // Update email if changed
-    const { data: { user } } = await supabase.auth.getUser();
-    if (email !== user?.email) {
+    // Update email if changed (use cached userId from state)
+    if (email !== originalEmail) {
       const { error: emailError } = await supabase.auth.updateUser({
         email,
       });

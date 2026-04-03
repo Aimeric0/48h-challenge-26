@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, memo } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -47,6 +47,7 @@ interface KanbanBoardProps {
   tasks: TaskWithAssignee[];
   onTasksChange: (tasks: TaskWithAssignee[]) => void;
   onDeleteTask: (taskId: string) => void;
+  currentUserId?: string;
 }
 
 const COLUMNS: { id: TaskStatus; label: string; icon: React.ElementType; color: string; dotClass: string; bgClass: string }[] = [
@@ -218,7 +219,7 @@ function TaskCardContent({
 
 // --- Droppable Column ---
 
-function KanbanColumn({
+const KanbanColumn = memo(function KanbanColumn({
   column,
   tasks,
   onDeleteTask,
@@ -268,7 +269,7 @@ function KanbanColumn({
       </div>
     </div>
   );
-}
+});
 
 // --- Main Kanban Board ---
 
@@ -276,6 +277,7 @@ export function KanbanBoard({
   tasks,
   onTasksChange,
   onDeleteTask,
+  currentUserId,
 }: KanbanBoardProps) {
   const dndId = useId();
   const [localTasks, setLocalTasks] = useState(tasks);
@@ -416,11 +418,8 @@ export function KanbanBoard({
 
     // Auto-assign current user when dropping in "done" without assignee
     const updateData: Record<string, string> = { status: newStatus };
-    if (newStatus === "done" && task && !task.assignee_id) {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        updateData.assignee_id = user.id;
-      }
+    if (newStatus === "done" && task && !task.assignee_id && currentUserId) {
+      updateData.assignee_id = currentUserId;
     }
 
     const { error } = await supabase

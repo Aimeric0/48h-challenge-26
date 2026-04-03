@@ -59,8 +59,9 @@ const highlights = [
 export default async function Home() {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   return (
     <div className="min-h-screen flex flex-col">
