@@ -19,6 +19,8 @@ export interface UserStats {
   membersInvited: number;
   tasksAssigned: number;
   streak: number;
+  hasNightOwlTask: boolean;
+  hasGhostBusterTask: boolean;
 }
 
 export const BADGES: BadgeDef[] = [
@@ -134,6 +136,21 @@ export const BADGES: BadgeDef[] = [
     target: 7,
     progressKey: "streak",
     check: (s) => s.streak >= 7,
+  },
+  // --- Easter Eggs ---
+  {
+    id: "night_owl",
+    name: "Noctambule",
+    description: "Terminer une tâche entre 2h et 5h du matin",
+    icon: "moon",
+    check: (s) => s.hasNightOwlTask,
+  },
+  {
+    id: "ghost_buster",
+    name: "Chasseur de fantômes",
+    description: "Terminer une tâche créée il y a plus de 90 jours",
+    icon: "ghost",
+    check: (s) => s.hasGhostBusterTask,
   },
 ];
 

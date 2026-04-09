@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, FolderCheck, Flame, CalendarCheck, Loader2 } from "lucide-react";
+import { CheckCircle2, FolderCheck, Flame as FlameIcon, CalendarCheck, Loader2 } from "lucide-react";
 import { XpBar } from "@/components/gamification/xp-bar";
 import { BadgesGrid } from "@/components/gamification/badges-grid";
 import { ActivityHeatmap } from "@/components/gamification/activity-heatmap";
+import { getStreakMultiplier } from "@/lib/gamification";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,8 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
   let membersInvited = 0;
   let tasksAssigned = 0;
   let streak = 0;
+  let hasNightOwlTask = false;
+  let hasGhostBusterTask = false;
   let badgeUnlockDates: Record<string, string> = {};
   let activityRaw: { activity_date: string }[] = [];
 
@@ -40,6 +43,8 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
       streakRes,
       badgesRes,
       activityRes,
+      nightOwlRes,
+      ghostBusterRes,
     ] = await Promise.all([
       supabase
         .from("tasks")
@@ -73,6 +78,8 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
         .select("activity_date")
         .eq("user_id", userId)
         .gte("activity_date", sixteenWeeksAgo.toISOString().split("T")[0]),
+      supabase.rpc("check_night_owl", { p_user_id: userId }),
+      supabase.rpc("check_ghost_buster", { p_user_id: userId }),
     ]);
 
     tasksCompleted = tasksRes.count ?? 0;
@@ -81,6 +88,8 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
     membersInvited = invitedRes.count ?? 0;
     tasksAssigned = assignedRes.count ?? 0;
     streak = streakRes.data ?? 0;
+    hasNightOwlTask = nightOwlRes.data ?? false;
+    hasGhostBusterTask = ghostBusterRes.data ?? false;
     activityRaw = activityRes.data || [];
 
     for (const b of badgesRes.data || []) {
@@ -112,6 +121,8 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
           membersInvited,
           tasksAssigned,
           streak,
+          hasNightOwlTask,
+          hasGhostBusterTask,
         }}
         unlockDates={badgeUnlockDates}
       />
@@ -124,7 +135,9 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
               <CheckCircle2 className="h-4 w-4 text-emerald-500" />
             </div>
             <p className="text-2xl font-bold mt-1">{tasksCompleted}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">+10 XP par tâche</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              +{Math.round(10 * getStreakMultiplier(streak))} XP par tâche{getStreakMultiplier(streak) > 1 ? ` (x${getStreakMultiplier(streak)})` : ""}
+            </p>
           </CardContent>
         </Card>
 
@@ -143,7 +156,7 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
           <CardContent className="py-4 px-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">XP Total</span>
-              <Flame className="h-4 w-4 text-amber-500" />
+              <FlameIcon className="h-4 w-4 text-amber-500" />
             </div>
             <p className="text-2xl font-bold mt-1">{profileXp}</p>
             <p className="text-xs text-muted-foreground mt-0.5">XP accumulés</p>
@@ -159,6 +172,11 @@ async function DashboardStats({ userId, profileXp, profileLevel }: { userId: str
             <p className="text-2xl font-bold mt-1">
               {streak} jour{streak !== 1 ? "s" : ""}
             </p>
+            {getStreakMultiplier(streak) > 1 && (
+              <p className="text-xs font-semibold text-amber-500 mt-0.5">
+                x{getStreakMultiplier(streak)} XP
+              </p>
+            )}
             <p className="text-xs text-muted-foreground mt-0.5">
               {streak >= 7 ? "Incroyable !" : streak >= 3 ? "Continuez !" : "Restez actif !"}
             </p>
@@ -197,11 +215,15 @@ export default async function DashboardPage() {
   const { data: { session } } = await supabase.auth.getSession();
   const userId = session?.user?.id;
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("full_name, xp, level")
-    .eq("id", userId)
-    .single();
+  const [{ data: profile }, { data: streakData }] = await Promise.all([
+    supabase
+      .from("profiles")
+      .select("full_name, xp, level")
+      .eq("id", userId)
+      .single(),
+    supabase.rpc("get_user_streak", { p_user_id: userId }),
+  ]);
+  const pageStreak = streakData ?? 0;
 
   return (
     <div className="space-y-6">
@@ -217,7 +239,7 @@ export default async function DashboardPage() {
       {/* XP Progress Card */}
       <Card>
         <CardContent className="pt-6">
-          <XpBar xp={profile?.xp ?? 0} level={profile?.level ?? 1} />
+          <XpBar xp={profile?.xp ?? 0} level={profile?.level ?? 1} streak={pageStreak} />
         </CardContent>
       </Card>
 

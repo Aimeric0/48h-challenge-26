@@ -11,6 +11,7 @@ import {
 import {
   Rocket, Zap, FolderCheck, Shield, Crown, Award, Cpu,
   Briefcase, Handshake, UsersRound, Flame, CalendarCheck, CalendarHeart,
+  Moon, Ghost,
 } from "lucide-react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -26,6 +27,8 @@ const ICON_MAP: Record<string, React.ElementType> = {
   flame: Flame,
   "calendar-check": CalendarCheck,
   "calendar-heart": CalendarHeart,
+  moon: Moon,
+  ghost: Ghost,
 };
 
 interface BadgesGridProps {
@@ -52,7 +55,7 @@ export function BadgesGrid({ stats, unlockDates = {} }: BadgesGridProps) {
             {BADGES.map((badge) => {
               const unlocked = unlockedIds.has(badge.id);
               const Icon = ICON_MAP[badge.icon] || Rocket;
-              const current = badge.progressKey ? stats[badge.progressKey] : 0;
+              const current = badge.progressKey ? Number(stats[badge.progressKey]) : 0;
               const target = badge.target ?? 1;
               const progress = Math.min(current / target, 1);
 
