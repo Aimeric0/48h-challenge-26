@@ -30,6 +30,11 @@ import { createClient } from "@/lib/supabase/client";
 import { useColorTheme } from "@/components/providers/color-theme-provider";
 import { useTheme } from "next-themes";
 import { COLOR_THEMES } from "@/lib/themes";
+import {
+  CUSTOM_COLOR_SLOTS,
+  getDefaultCustomColors,
+} from "@/lib/custom-theme";
+import type { CustomThemeColors } from "@/lib/custom-theme";
 
 export default function SettingsPage() {
   const [fullName, setFullName] = useState("");
@@ -49,9 +54,14 @@ export default function SettingsPage() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [themeCreatorOpen, setThemeCreatorOpen] = useState(false);
+  const [draftColors, setDraftColors] = useState<CustomThemeColors>(
+    getDefaultCustomColors()
+  );
   const router = useRouter();
   const [supabase] = useState(() => createClient());
-  const { colorTheme, setColorTheme } = useColorTheme();
+  const { colorTheme, setColorTheme, customColors, setCustomColors } =
+    useColorTheme();
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -458,7 +468,9 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <Label>Thèmes avancés</Label>
             <div className="grid gap-3 sm:grid-cols-2">
-              {COLOR_THEMES.filter((t) => t.category === "advanced").map((t) => (
+              {COLOR_THEMES.filter(
+                (t) => t.category === "advanced" && t.id !== "custom"
+              ).map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setColorTheme(t.id)}
@@ -490,6 +502,123 @@ export default function SettingsPage() {
                   )}
                 </button>
               ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <Label>Mon thème</Label>
+            <div className="flex items-center gap-4">
+              <div className="flex -space-x-1.5">
+                {CUSTOM_COLOR_SLOTS.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="h-8 w-8 rounded-full border-2 border-background"
+                    style={{ backgroundColor: customColors[slot.id] }}
+                  />
+                ))}
+              </div>
+              <Dialog
+                open={themeCreatorOpen}
+                onOpenChange={(open) => {
+                  if (open) setDraftColors(customColors);
+                  setThemeCreatorOpen(open);
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Palette className="mr-2 h-4 w-4" />
+                    Créer
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Créer un thème personnalisé</DialogTitle>
+                    <DialogDescription>
+                      Choisissez vos couleurs pour personnaliser l'interface.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    {CUSTOM_COLOR_SLOTS.map((slot) => (
+                      <div
+                        key={slot.id}
+                        className="flex items-center justify-between gap-4"
+                      >
+                        <div>
+                          <Label className="text-sm font-medium">
+                            {slot.label}
+                          </Label>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            --{slot.id}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-8 w-8 rounded-full border border-border/50 shrink-0"
+                            style={{
+                              backgroundColor: draftColors[slot.id],
+                            }}
+                          />
+                          <input
+                            type="color"
+                            value={draftColors[slot.id]}
+                            onChange={(e) =>
+                              setDraftColors((prev) => ({
+                                ...prev,
+                                [slot.id]: e.target.value,
+                              }))
+                            }
+                            className="h-9 w-16 cursor-pointer rounded border border-input bg-transparent p-0.5"
+                            aria-label={slot.label}
+                          />
+                          <span className="text-xs text-muted-foreground font-mono w-16">
+                            {draftColors[slot.id].toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className="h-10 rounded-md border border-border overflow-hidden flex"
+                    aria-label="Aperçu"
+                  >
+                    <div
+                      className="flex-1"
+                      style={{ backgroundColor: draftColors.primary }}
+                    />
+                    <div
+                      className="flex-1"
+                      style={{ backgroundColor: draftColors.secondary }}
+                    />
+                    <div
+                      className="flex-1"
+                      style={{ backgroundColor: draftColors.accent }}
+                    />
+                  </div>
+                  <DialogFooter className="gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setThemeCreatorOpen(false)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setCustomColors(draftColors);
+                        setColorTheme("custom");
+                        setThemeCreatorOpen(false);
+                      }}
+                    >
+                      <Check className="mr-2 h-4 w-4" />
+                      Appliquer
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              {colorTheme === "custom" && (
+                <Check className="h-4 w-4 text-primary" />
+              )}
             </div>
           </div>
         </CardContent>

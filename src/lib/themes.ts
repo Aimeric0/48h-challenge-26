@@ -15,6 +15,14 @@ export const COLOR_THEMES = [
     description: "Palette officielle du Challenge 48h",
     palette: ["#8B5CF6", "#F59E0B", "#EC4899"],
   },
+  {
+    id: "custom",
+    name: "Mon thème",
+    color: "#6366f1",
+    darkColor: "#818cf8",
+    category: "advanced" as const,
+    description: "Thème personnalisé",
+  },
 ] as const;
 
 export type ColorThemeId = (typeof COLOR_THEMES)[number]["id"];
