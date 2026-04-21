@@ -34,3 +34,17 @@ export function getLevelTitle(level: number): string {
   if (level >= 3) return "Junior";
   return "Débutant";
 }
+
+export function getStreakMultiplier(streak: number): number {
+  if (streak >= 14) return 2.0;
+  if (streak >= 7) return 1.5;
+  if (streak >= 3) return 1.2;
+  return 1.0;
+}
+
+export function getNextMultiplierThreshold(streak: number): { days: number; multiplier: number } | null {
+  if (streak >= 14) return null;
+  if (streak >= 7) return { days: 14, multiplier: 2.0 };
+  if (streak >= 3) return { days: 7, multiplier: 1.5 };
+  return { days: 3, multiplier: 1.2 };
+}

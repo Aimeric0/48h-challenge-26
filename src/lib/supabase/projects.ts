@@ -4,14 +4,16 @@ import type { ProjectWithStats, ProjectDetail, Profile } from "@/types/database"
 export async function getProjectsWithStats(): Promise<ProjectWithStats[]> {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return [];
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return [];
+  const user = session.user;
 
   const { data: projects } = await supabase
     .from("projects")
-    .select("*")
-    .order("created_at", { ascending: false });
+    .select("id, name, description, status, deadline, owner_id, created_at, updated_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
 
   if (!projects?.length) return [];
 
@@ -70,13 +72,13 @@ export async function getProjectsWithStats(): Promise<ProjectWithStats[]> {
 export async function getProjectById(id: string): Promise<ProjectDetail | null> {
   const supabase = await createClient();
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) return null;
 
   const { data: project } = await supabase
     .from("projects")
-    .select("*")
+    .select("id, name, description, status, deadline, owner_id, created_at, updated_at")
     .eq("id", id)
     .single();
 
@@ -89,9 +91,10 @@ export async function getProjectById(id: string): Promise<ProjectDetail | null> 
       .eq("project_id", id),
     supabase
       .from("tasks")
-      .select("*")
+      .select("id, project_id, title, description, status, assignee_id, deadline, position, created_at, updated_at")
       .eq("project_id", id)
-      .order("position", { ascending: true }),
+      .order("position", { ascending: true })
+      .limit(200),
   ]);
 
   const members = membersResult.data || [];
@@ -105,7 +108,7 @@ export async function getProjectById(id: string): Promise<ProjectDetail | null> 
   ];
 
   const { data: profiles } = userIds.length
-    ? await supabase.from("profiles").select("*").in("id", userIds)
+    ? await supabase.from("profiles").select("id, full_name, email, avatar_url, xp, level, created_at, updated_at").in("id", userIds)
     : { data: [] };
 
   const profileMap = new Map(

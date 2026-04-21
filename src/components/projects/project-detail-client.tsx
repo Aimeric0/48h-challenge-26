@@ -13,7 +13,12 @@ import {
   Trash2,
   X,
 } from "lucide-react";
-import { KanbanBoard } from "@/components/projects/kanban-board";
+import dynamic from "next/dynamic";
+
+const KanbanBoard = dynamic(
+  () => import("@/components/projects/kanban-board").then((m) => m.KanbanBoard),
+  { ssr: false, loading: () => <div className="flex items-center justify-center py-12"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div> }
+);
 import { TeamLeaderboard } from "@/components/projects/team-leaderboard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -298,6 +303,7 @@ export function ProjectDetailClient({ project: initialProject, currentUserId }: 
         tasks={tasks}
         onTasksChange={handleTasksChange}
         onDeleteTask={handleDeleteTask}
+        currentUserId={currentUserId}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">

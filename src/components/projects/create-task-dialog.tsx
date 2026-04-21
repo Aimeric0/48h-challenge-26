@@ -78,7 +78,7 @@ export function CreateTaskDialog({
           deadline: deadline || null,
           position: maxPosition + 1,
         })
-        .select("*")
+        .select("id, project_id, title, description, status, assignee_id, deadline, position, created_at, updated_at")
         .single();
 
       if (error || !task) throw error;

@@ -26,8 +26,10 @@ export async function updateSession(request: NextRequest) {
   );
 
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  const user = session?.user ?? null;
 
   const isResetPassword =
     request.nextUrl.pathname.startsWith("/reset-password");

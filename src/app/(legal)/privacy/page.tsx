@@ -44,8 +44,8 @@ export default function PrivacyPage() {
               complet, mot de passe (stocké sous forme chiffrée)
             </li>
             <li>
-              <strong>Conversations :</strong> messages échangés avec
-              l&apos;assistant, titres des conversations
+              <strong>Projets et tâches :</strong> données de gestion de
+              projet (titres, descriptions, statuts, assignations)
             </li>
             <li>
               <strong>Données techniques :</strong> cookies de session
@@ -62,8 +62,8 @@ export default function PrivacyPage() {
         <CardContent className="space-y-2 text-sm">
           <ul className="list-disc space-y-1 pl-6">
             <li>Gestion de votre compte et authentification</li>
-            <li>Fourniture du service de chat intelligent</li>
-            <li>Sauvegarde de votre historique de conversations</li>
+            <li>Fourniture du service de gestion de projet</li>
+            <li>Suivi de la progression et gamification</li>
           </ul>
         </CardContent>
       </Card>
@@ -76,24 +76,19 @@ export default function PrivacyPage() {
           <div>
             <p className="font-medium">Supabase (hébergement)</p>
             <p>
-              Vos données de compte et conversations sont hébergées par Supabase
+              Vos données de compte, projets et tâches sont hébergées par Supabase
               sur des serveurs situés dans l&apos;Union européenne (région
               Francfort, Allemagne).
             </p>
           </div>
           <div>
-            <p className="font-medium">Mistral AI (traitement des messages)</p>
+            <p className="font-medium">Claude Desktop via MCP (assistant IA)</p>
             <p>
-              Lorsque vous envoyez un message dans le chat, celui-ci est
-              transmis à l&apos;API Mistral AI pour générer une réponse.
-              L&apos;historique de la conversation en cours est également
-              transmis pour assurer la cohérence des réponses.
-            </p>
-            <p className="mt-2 rounded-md bg-muted p-3">
-              <strong>Important :</strong> Dans le cadre du plan gratuit de
-              Mistral AI, les données d&apos;entrée et de sortie peuvent être
-              utilisées par Mistral pour améliorer ses modèles. Ne partagez pas
-              d&apos;informations sensibles ou personnelles dans le chat.
+              L&apos;application expose un serveur MCP (Model Context Protocol)
+              permettant à Claude Desktop d&apos;interagir avec vos projets et
+              tâches. Ce traitement s&apos;effectue localement sur votre machine
+              et aucune donnée n&apos;est transmise à des serveurs tiers via ce
+              canal.
             </p>
           </div>
         </CardContent>
@@ -126,10 +121,10 @@ export default function PrivacyPage() {
                   <td className="py-2">Inclus dans les CGU Supabase</td>
                 </tr>
                 <tr className="border-b">
-                  <td className="py-2 pr-4">Mistral AI</td>
-                  <td className="py-2 pr-4">Traitement des messages (chat)</td>
-                  <td className="py-2 pr-4">France / UE</td>
-                  <td className="py-2">En cours de formalisation</td>
+                  <td className="py-2 pr-4">Anthropic (Claude)</td>
+                  <td className="py-2 pr-4">Assistant IA via MCP (local)</td>
+                  <td className="py-2 pr-4">Local (Claude Desktop)</td>
+                  <td className="py-2">Traitement local</td>
                 </tr>
                 <tr className="border-b">
                   <td className="py-2 pr-4">Vercel Inc.</td>
@@ -156,7 +151,7 @@ export default function PrivacyPage() {
           <p>
             Vos données sont conservées tant que votre compte est actif. En cas
             de suppression de votre compte, toutes vos données personnelles,
-            conversations et messages sont définitivement supprimés de nos
+            projets et tâches sont définitivement supprimés de nos
             serveurs.
           </p>
         </CardContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import { getLevelProgress, xpForLevel, xpForNextLevel, getLevelTitle } from "@/lib/gamification";
+import { getLevelProgress, xpForLevel, xpForNextLevel, getLevelTitle, getStreakMultiplier } from "@/lib/gamification";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
@@ -8,19 +8,21 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Star } from "lucide-react";
+import { Star, Flame } from "lucide-react";
 
 interface XpBarProps {
   xp: number;
   level: number;
   compact?: boolean;
+  streak?: number;
 }
 
-export function XpBar({ xp, level, compact = false }: XpBarProps) {
+export function XpBar({ xp, level, compact = false, streak = 0 }: XpBarProps) {
   const progress = getLevelProgress(xp, level);
   const currentThreshold = xpForLevel(level);
   const nextThreshold = xpForNextLevel(level);
   const title = getLevelTitle(level);
+  const multiplier = getStreakMultiplier(streak);
 
   if (compact) {
     return (
@@ -64,9 +66,27 @@ export function XpBar({ xp, level, compact = false }: XpBarProps) {
             <p className="text-xs text-muted-foreground">{title}</p>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          {xp - currentThreshold} / {nextThreshold - currentThreshold} XP
-        </p>
+        <div className="flex items-center gap-2">
+          {multiplier > 1 && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger render={<div />}>
+                  <Badge variant="secondary" className="px-1.5 py-0 text-[10px] font-semibold gap-1 bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+                    <Flame className="h-2.5 w-2.5" />
+                    x{multiplier}
+                  </Badge>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs font-medium">Streak de {streak} jours</p>
+                  <p className="text-xs text-muted-foreground">Multiplicateur XP actif !</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {xp - currentThreshold} / {nextThreshold - currentThreshold} XP
+          </p>
+        </div>
       </div>
       <div className="h-2.5 w-full rounded-full bg-muted overflow-hidden">
         <div

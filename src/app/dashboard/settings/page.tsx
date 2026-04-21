@@ -24,15 +24,22 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Check, Download, Loader2, Palette, Save, Trash2 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera, Check, Download, Loader2, Lock, Palette, Save, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { useColorTheme } from "@/components/color-theme-provider";
+import { useColorTheme } from "@/components/providers/color-theme-provider";
 import { useTheme } from "next-themes";
 import { COLOR_THEMES } from "@/lib/themes";
+import {
+  CUSTOM_COLOR_SLOTS,
+  getDefaultCustomColors,
+} from "@/lib/custom-theme";
+import type { CustomThemeColors } from "@/lib/custom-theme";
 
 export default function SettingsPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [originalEmail, setOriginalEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [exportLoading, setExportLoading] = useState(false);
@@ -40,9 +47,21 @@ export default function SettingsPage() {
   const [error, setError] = useState("");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [themeCreatorOpen, setThemeCreatorOpen] = useState(false);
+  const [draftColors, setDraftColors] = useState<CustomThemeColors>(
+    getDefaultCustomColors()
+  );
   const router = useRouter();
   const [supabase] = useState(() => createClient());
-  const { colorTheme, setColorTheme } = useColorTheme();
+  const { colorTheme, setColorTheme, customColors, setCustomColors } =
+    useColorTheme();
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -51,12 +70,14 @@ export default function SettingsPage() {
       if (user) {
         setUserId(user.id);
         setEmail(user.email || "");
+        setOriginalEmail(user.email || "");
         const { data: profile } = await supabase
           .from("profiles")
-          .select("full_name")
+          .select("full_name, avatar_url")
           .eq("id", user.id)
           .single();
         setFullName(profile?.full_name || "");
+        setAvatarUrl(profile?.avatar_url || null);
       }
     }
     loadProfile();
@@ -82,9 +103,8 @@ export default function SettingsPage() {
       return;
     }
 
-    // Update email if changed
-    const { data: { user } } = await supabase.auth.getUser();
-    if (email !== user?.email) {
+    // Update email if changed (use cached userId from state)
+    if (email !== originalEmail) {
       const { error: emailError } = await supabase.auth.updateUser({
         email,
       });
@@ -97,6 +117,88 @@ export default function SettingsPage() {
 
     setSuccess("Profil mis à jour avec succès.");
     setLoading(false);
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !userId) return;
+
+    setAvatarUploading(true);
+    setError("");
+
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+      const filePath = `${userId}/avatar.${ext}`;
+
+      // Upload file (upsert to replace existing)
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        setError("Erreur lors du téléversement de l'avatar.");
+        setAvatarUploading(false);
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const publicUrl = urlData.publicUrl + "?t=" + Date.now();
+
+      // Update profile
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("id", userId);
+
+      if (profileError) {
+        setError("Erreur lors de la mise à jour du profil.");
+        setAvatarUploading(false);
+        return;
+      }
+
+      setAvatarUrl(publicUrl);
+      setSuccess("Avatar mis à jour avec succès.");
+    } catch {
+      setError("Erreur lors du téléversement de l'avatar.");
+    }
+    setAvatarUploading(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError("");
+    setPasswordSuccess("");
+
+    if (newPassword.length < 6) {
+      setPasswordError("Le mot de passe doit contenir au moins 6 caractères.");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    setPasswordLoading(true);
+
+    const { error: updateError } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (updateError) {
+      setPasswordError("Erreur lors de la mise à jour du mot de passe.");
+      setPasswordLoading(false);
+      return;
+    }
+
+    setPasswordSuccess("Mot de passe mis à jour avec succès.");
+    setNewPassword("");
+    setConfirmPassword("");
+    setPasswordLoading(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -163,6 +265,52 @@ export default function SettingsPage() {
                 <AlertDescription>{success}</AlertDescription>
               </Alert>
             )}
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage src={avatarUrl || undefined} alt="Avatar" />
+                  <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
+                    {fullName
+                      ? fullName
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase()
+                          .slice(0, 2)
+                      : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                {avatarUploading && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+                    <Loader2 className="h-6 w-6 animate-spin text-white" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1">
+                <Label>Photo de profil</Label>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG ou GIF. 2 Mo max.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={avatarUploading}
+                  onClick={() => document.getElementById("avatar-input")?.click()}
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Changer la photo
+                </Button>
+                <input
+                  id="avatar-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarUpload}
+                />
+              </div>
+            </div>
+            <Separator />
             <div className="space-y-2">
               <Label htmlFor="fullName">Nom complet</Label>
               <Input
@@ -189,6 +337,62 @@ export default function SettingsPage() {
                 <Save className="mr-2 h-4 w-4" />
               )}
               Enregistrer
+            </Button>
+          </CardFooter>
+        </form>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Lock className="h-5 w-5" />
+            Changer le mot de passe
+          </CardTitle>
+          <CardDescription>
+            Mettez à jour votre mot de passe pour sécuriser votre compte.
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleChangePassword}>
+          <CardContent className="space-y-4">
+            {passwordError && (
+              <Alert variant="destructive">
+                <AlertDescription>{passwordError}</AlertDescription>
+              </Alert>
+            )}
+            {passwordSuccess && (
+              <Alert>
+                <AlertDescription>{passwordSuccess}</AlertDescription>
+              </Alert>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="6 caractères minimum"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirmez votre nouveau mot de passe"
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button type="submit" disabled={passwordLoading}>
+              {passwordLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Lock className="mr-2 h-4 w-4" />
+              )}
+              Mettre à jour le mot de passe
             </Button>
           </CardFooter>
         </form>
@@ -228,9 +432,9 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-3">
-            <Label>Couleur d&apos;accent</Label>
+            <Label>Thèmes</Label>
             <div className="grid grid-cols-4 gap-3 sm:grid-cols-7">
-              {COLOR_THEMES.map((t) => (
+              {COLOR_THEMES.filter((t) => t.category === "basic").map((t) => (
                 <button
                   key={t.id}
                   onClick={() => setColorTheme(t.id)}
@@ -258,6 +462,165 @@ export default function SettingsPage() {
               ))}
             </div>
           </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <Label>Thèmes avancés</Label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {COLOR_THEMES.filter(
+                (t) => t.category === "advanced" && t.id !== "custom"
+              ).map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setColorTheme(t.id)}
+                  className={`flex items-center gap-4 rounded-lg border-2 p-4 text-left transition-colors hover:bg-accent/50 ${
+                    colorTheme === t.id
+                      ? "border-primary bg-accent/30"
+                      : "border-transparent"
+                  }`}
+                >
+                  <div className="flex -space-x-1.5">
+                    {"palette" in t && (t as { palette: readonly string[] }).palette.map((c, i) => (
+                      <div
+                        key={i}
+                        className="h-8 w-8 rounded-full border-2 border-background"
+                        style={{ backgroundColor: c }}
+                      />
+                    ))}
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium">{t.name}</span>
+                    {"description" in t && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        {(t as { description: string }).description}
+                      </p>
+                    )}
+                  </div>
+                  {colorTheme === t.id && (
+                    <Check className="ml-auto h-4 w-4 shrink-0 text-primary" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-3">
+            <Label>Mon thème</Label>
+            <div className="flex items-center gap-4">
+              <div className="flex -space-x-1.5">
+                {CUSTOM_COLOR_SLOTS.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className="h-8 w-8 rounded-full border-2 border-background"
+                    style={{ backgroundColor: customColors[slot.id] }}
+                  />
+                ))}
+              </div>
+              <Dialog
+                open={themeCreatorOpen}
+                onOpenChange={(open) => {
+                  if (open) setDraftColors(customColors);
+                  setThemeCreatorOpen(open);
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Palette className="mr-2 h-4 w-4" />
+                    Créer
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Créer un thème personnalisé</DialogTitle>
+                    <DialogDescription>
+                      Choisissez vos couleurs pour personnaliser l'interface.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 py-2">
+                    {CUSTOM_COLOR_SLOTS.map((slot) => (
+                      <div
+                        key={slot.id}
+                        className="flex items-center justify-between gap-4"
+                      >
+                        <div>
+                          <Label className="text-sm font-medium">
+                            {slot.label}
+                          </Label>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            --{slot.id}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-8 w-8 rounded-full border border-border/50 shrink-0"
+                            style={{
+                              backgroundColor: draftColors[slot.id],
+                            }}
+                          />
+                          <input
+                            type="color"
+                            value={draftColors[slot.id]}
+                            onChange={(e) =>
+                              setDraftColors((prev) => ({
+                                ...prev,
+                                [slot.id]: e.target.value,
+                              }))
+                            }
+                            className="h-9 w-16 cursor-pointer rounded border border-input bg-transparent p-0.5"
+                            aria-label={slot.label}
+                          />
+                          <span className="text-xs text-muted-foreground font-mono w-16">
+                            {draftColors[slot.id].toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div
+                    className="h-10 rounded-md border border-border overflow-hidden flex"
+                    aria-label="Aperçu"
+                  >
+                    <div
+                      className="flex-1"
+                      style={{ backgroundColor: draftColors.primary }}
+                    />
+                    <div
+                      className="flex-1"
+                      style={{ backgroundColor: draftColors.secondary }}
+                    />
+                    <div
+                      className="flex-1"
+                      style={{ backgroundColor: draftColors.accent }}
+                    />
+                  </div>
+                  <DialogFooter className="gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => setThemeCreatorOpen(false)}
+                    >
+                      Annuler
+                    </Button>
+                    <Button
+                      onClick={() => {
+                        setCustomColors(draftColors);
+                        setColorTheme("custom");
+                        setThemeCreatorOpen(false);
+                      }}
+                    >
+                      <Check className="mr-2 h-4 w-4" />
+                      Appliquer
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+              {colorTheme === "custom" && (
+                <Check className="h-4 w-4 text-primary" />
+              )}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -266,7 +629,7 @@ export default function SettingsPage() {
           <CardTitle>Mes données</CardTitle>
           <CardDescription>
             Exportez une copie de toutes vos données personnelles
-            (profil, conversations, messages) au format JSON.
+            (profil, projets, tâches) au format JSON.
           </CardDescription>
         </CardHeader>
         <CardFooter className="flex items-center justify-between">
@@ -313,8 +676,8 @@ export default function SettingsPage() {
               <DialogHeader>
                 <DialogTitle>Confirmer la suppression</DialogTitle>
                 <DialogDescription>
-                  Cette action est irréversible. Toutes vos conversations,
-                  messages et données personnelles seront définitivement
+                  Cette action est irréversible. Tous vos projets,
+                  tâches et données personnelles seront définitivement
                   supprimés.
                 </DialogDescription>
               </DialogHeader>

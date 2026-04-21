@@ -11,33 +11,49 @@ export async function GET() {
 
     const userId = user.id;
 
-    const [{ data: profile }, { data: conversations }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", userId).single(),
+    const [{ data: profile }, { data: memberships }] = await Promise.all([
+      supabase.from("profiles").select("id, full_name, email, avatar_url, xp, level, created_at, updated_at").eq("id", userId).single(),
       supabase
-        .from("conversations")
-        .select("*")
-        .eq("user_id", userId)
-        .order("created_at", { ascending: true }),
+        .from("project_members")
+        .select("project_id")
+        .eq("user_id", userId),
     ]);
 
-    const conversationIds = (conversations || []).map((c) => c.id);
+    const projectIds = (memberships || []).map((m) => m.project_id);
 
-    const { data: messages } = conversationIds.length > 0
-      ? await supabase
-          .from("messages")
-          .select("*")
-          .in("conversation_id", conversationIds)
-          .order("created_at", { ascending: true })
-      : { data: [] };
+    const [{ data: projects }, { data: tasks }] = await Promise.all([
+      projectIds.length > 0
+        ? supabase
+            .from("projects")
+            .select("id, name, description, status, deadline, owner_id, created_at, updated_at")
+            .in("id", projectIds)
+            .order("created_at", { ascending: true })
+            .limit(500)
+        : { data: [] as Record<string, unknown>[] },
+      projectIds.length > 0
+        ? supabase
+            .from("tasks")
+            .select("id, project_id, title, description, status, assignee_id, deadline, position, created_at, updated_at")
+            .in("project_id", projectIds)
+            .order("created_at", { ascending: true })
+            .limit(5000)
+        : { data: [] as Record<string, unknown>[] },
+    ]);
+
+    // Group tasks by project_id in O(n) instead of O(n*m) filter
+    const tasksByProject = new Map<string, Record<string, unknown>[]>();
+    for (const task of tasks || []) {
+      const pid = task.project_id as string;
+      if (!tasksByProject.has(pid)) tasksByProject.set(pid, []);
+      tasksByProject.get(pid)!.push(task);
+    }
 
     const exportData = {
       exported_at: new Date().toISOString(),
       profile,
-      conversations: (conversations || []).map((conv) => ({
-        ...conv,
-        messages: (messages || []).filter(
-          (m) => m.conversation_id === conv.id
-        ),
+      projects: (projects || []).map((project) => ({
+        ...project,
+        tasks: tasksByProject.get(project.id as string) || [],
       })),
     };
 

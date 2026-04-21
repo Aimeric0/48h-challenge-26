@@ -64,7 +64,7 @@ export function AddMemberDialog({
       const supabase = createClient();
       const { data: profile } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, email, avatar_url, xp, level, created_at, updated_at")
         .eq("email", email.trim().toLowerCase())
         .single();
 
